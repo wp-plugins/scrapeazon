@@ -71,7 +71,7 @@ ScrapeAZon will **not** display an error if the product you include in the short
 
 = ScrapeAZon isn't displaying *anything* on my page. What's up with that? =
 
-ScrapeAZon will **not** display no information on your page if the product you include in the shortcode does not contain reviews. In that case, an HTML comment explaining that no reviews are available will be inserted into your page.
+ScrapeAZon will **not** display information on your page if the product you include in the shortcode does not contain reviews. In that case, an HTML comment explaining that no reviews are available will be inserted into your page.
 
 If you know that reviews exist for the product you specified, ensure that the ASIN/ISBN-10 you provided in the shortcode is correct. Also, ensure that you are not viewing a previously cached version of your page that does not contain the shortcode.
 
@@ -82,8 +82,8 @@ This is the first version of the plugin.
 
 == Screenshots ==
 
-1.
-2.
+1. The settings page
+2. A look at the plugin in action
 
 == Changelog ==
 
