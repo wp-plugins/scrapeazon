@@ -67,12 +67,16 @@ function scrapeazon_shortcode($scrapeAtts) {
 }
 
 function scrapeazon_scrape($asin) {
+   $scrape_aws_key = get_option('scrape-aws-access-key-id');
+   $scrape_aws_secret = get_option('scrape-aws-secret-key');
+   $scrape_aws_affiliate = get_option('scrape-amz-assoc-id');
+
    // construct the Amazon URL to retrieve the data
    $host = "webservices.amazon.com";
    $path = "/onca/xml";
-   $req = "AssociateTag=" . get_option('scrape-amz-assoc-id') .
+   $req = "AssociateTag=" . $scrape_aws_affiliate .
    "&Availability=Available" .
-   "&AWSAccessKeyId=" . get_option('scrape-aws-access-key-id') .
+   "&AWSAccessKeyId=" . $scrape_aws_key .
    "&Condition=All" .
    "&IncludeReviewsSummary=True" .
    "&ItemId=" . $asin .
@@ -97,20 +101,24 @@ function scrapeazon_scrape($asin) {
    $new_query = implode('&', $query_array);
    
    $signature_string = "GET\n{$host}\n{$path}\n{$new_query}";
-   $signature = urlencode(base64_encode(hash_hmac('sha256', $signature_string, get_option('scrape-aws-secret-key'), true)));
+   $signature = urlencode(base64_encode(hash_hmac('sha256', $signature_string, $scrape_aws_secret, true)));
    $uri = "http://{$host}{$path}?{$new_query}&Signature={$signature}";
    /* End of adapted code */
-   
-   $xml = file_get_contents($uri);
-   $Result = simplexml_load_string($xml);
-   if(preg_match('/^True$/i',$Result->Items->Item->CustomerReviews->HasReviews)) {
-         $scrape_message = "<iframe class=\"scrapeazon-reviews\" src=\"" . $Result->Items->Item->CustomerReviews->IFrameURL . "\"></iframe>";
+
+   if ((strlen($scrape_aws_key)>0)&&(strlen($scrape_aws_secret)>0)&&(strlen($scrape_aws_affiliate)>0))  {
+      $xml = file_get_contents($uri);
+      $Result = simplexml_load_string($xml);
+      if(preg_match('/^True$/i',$Result->Items->Item->CustomerReviews->HasReviews)) {
+            $scrape_message = "<iframe class=\"scrapeazon-reviews\" src=\"" . $Result->Items->Item->CustomerReviews->IFrameURL . "\"></iframe>";
+      } else {
+            if($Result->Error->Message) {
+               $scrape_message = "<div id=\"scrape-error\"><h2>A ScrapeAZon Error Occurred</h2> " . $Result->Error->Code . ": " . $Result->Error->Message . "</div>\n";
+            } else {
+               $scrape_message = "\n<!-- ScrapeAZon did not find any available reviews. -->\n";
+            }
+      }
    } else {
-         if($Result->Error->Message) {
-            $scrape_message = "<div id=\"scrape-error\"><h2>A ScrapeAZon Error Occurred</h2> " . $Result->Error->Code . ": " . $Result->Error->Message . "</div>\n";
-         } else {
-            $scrape_message = "\n<!-- ScrapeAZon did not find any available reviews. -->\n";
-         }
+      $scrape_message = "\n<!-- ScrapeAZon is not properly configured. -->\n";
    }
    return $scrape_message;
 }
