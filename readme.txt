@@ -89,7 +89,7 @@ This is the first version of the plugin.
 2. A look at the plugin in action
 
 == Changelog ==
-= 1.0.1
+= 1.0.1 =
 * Reduced calls to the AWS Product Advertising API to increase performance
 * Fixed typo in the FAQ
 * Fixed typo in the tags
