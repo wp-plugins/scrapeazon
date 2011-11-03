@@ -32,7 +32,7 @@ This section describes how to install the plugin and get it working.
 3. Upload the ScrapeAZon folder to the '/wp-content/plugins/' directory
 4. Activate ScrapeAZon by using the 'Plugins' menu
 5. Under the Wordpress 'Settings' menu, click ScrapeAZon and configure the appropriate settings
-6. Add the [scrapeazon asin=<amazon.com product number>"] shortcode, where <amazon.com product number> is the ASIN or ISBN-10 of the product that contains the reviews you want to display, to the pages or posts you want
+6. Add the [scrapeazon asin="<amazon.com product number>"] shortcode, where <amazon.com product number> is the ASIN or ISBN-10 of the product that contains the reviews you want to display, to the pages or posts you want
 
 == Frequently Asked Questions ==
 
@@ -95,6 +95,7 @@ This is the first version of the plugin.
 
 = 1.0.2 =
 * Fixed secret key character validation that prevented some API keys from working
+* Fixed a typo (missing quotation mark) in the readme/installation instructions
 
 = 1.0.1 =
 * Reduced calls to the AWS Product Advertising API to increase performance
