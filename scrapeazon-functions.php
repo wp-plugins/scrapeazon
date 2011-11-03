@@ -53,7 +53,7 @@ function scrapeazon_register_settings() {
 
 function scrapeazon_validate($input) {
    $newKey = trim($input);
-   if(!preg_match('/^[a-z0-9\_\+\-\$]*$/i', $newKey)) {
+   if(!preg_match('/^[\w\W]*$/i', $newKey)) {
       $newKey = '';
    }
    return $newKey;

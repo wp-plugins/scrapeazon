@@ -77,6 +77,9 @@ If you know that reviews exist for the product you specified, ensure that the AS
 
 == Upgrade Notice ==
 
+= 1.0.2 =
+Upgrade to version 1.0.2 if you use Amazon API keys that contain special characters, such as the "/" character. (Thanks, Bryan.)
+
 = 1.0.1 =
 You should upgrade to version 1.0.1 to reduce calls to the Product Advertising API and increase performance.
 
@@ -89,6 +92,10 @@ This is the first version of the plugin.
 2. A look at the plugin in action
 
 == Changelog ==
+
+= 1.0.2 =
+* Fixed secret key character validation that prevented some API keys from working
+
 = 1.0.1 =
 * Reduced calls to the AWS Product Advertising API to increase performance
 * Fixed typo in the FAQ
