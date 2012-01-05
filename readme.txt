@@ -8,7 +8,7 @@ Author URI:        http://www.timetides.com
 Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.1 
-Tested up to:      3.2.1
+Tested up to:      3.3
 Stable tag:        trunk
 
 Display Amazon.com customer reviews for products you specify on any page or post.
@@ -58,6 +58,10 @@ Amazon's API requires an AWS Access Key ID and an AWS Secret Key in order to cor
 
 This plugin currently only accesses reviews on Amazon.com.
 
+= I'm getting weird PHP errors when ScrapeAZon attempts to retrieve a review. What's wrong? =
+
+Depending on your installation, your system might not support cURL, which is the default method of retrieval that ScrapeAZon uses. If your system does not support cURL, try selecting the checkbox on the ScrapeAZon settings page that configures the plugin to use file_get_contents instead.
+
 = The ScrapeAZon shortcode displays an error message on my page. What's up with that? =
 
 If the AWS server returns an error from your API request, ScrapeAZon displays that error to assist you in troubleshooting. Some common reasons you might see an error are:
@@ -75,7 +79,28 @@ ScrapeAZon will **not** display information on your page if the product you incl
 
 If you know that reviews exist for the product you specified, ensure that the ASIN/ISBN-10 you provided in the shortcode is correct. Also, ensure that you are not viewing a previously cached version of your page that does not contain the shortcode.
 
+= The default iframe is really small. How do I change that? =
+
+There are two ways that you can style the scrapeazon-reviews frame: by editing your theme's stylesheet or by adding parameters to each shortcode.
+
+To style the iframe in your theme's stylesheet, add a class named scrapeazon-reviews to your stylesheet, then add the width, height, border, and other parameters you want to style to that class. For example, copy and paste the following into your stylesheet to make the iframe a 540x540 pixel square with no border:
+
+.scrapeazon-reviews {
+   width: 540px;
+   height: 540px;
+   border: none;
+}
+
+To style the iframe by using the shortcode, add width, height, and border as parameters to the shortcode. For example, to accomplish the same formatting as above in shortcode format, use the following shortcode:
+
+[scrapeazon asin="<your asin>" width="540" height="540" border="false"]
+
+The border parameter currently only accepts a value of "false."
+
 == Upgrade Notice ==
+
+= 1.0.3 =
+Upgrade to version 1.0.3 to get more granular control over the appearance of the reviews iframe on your pages or posts. Additionally, ScrapeAZon is now compatible only with PHP installations that support cURL.
 
 = 1.0.2 =
 Upgrade to version 1.0.2 if you use Amazon API keys that contain special characters, such as the "/" character. (Thanks, Bryan.)
@@ -93,9 +118,14 @@ This is the first version of the plugin.
 
 == Changelog ==
 
+= 1.0.3 =
+* Added shortcode parameters to style the iframe
+* Added information to the FAQ about styling the iframe
+* Added option that enables you to retrieve reviews via either cURL or file_get_contents
+* Strengthened input validation
+
 = 1.0.2 =
 * Fixed secret key character validation that prevented some API keys from working
-* Fixed a typo (missing quotation mark) in the readme/installation instructions
 
 = 1.0.1 =
 * Reduced calls to the AWS Product Advertising API to increase performance
