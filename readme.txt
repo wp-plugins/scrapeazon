@@ -8,29 +8,48 @@ Author URI:        http://www.timetides.com
 Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.1 
-Tested up to:      3.3
+Tested up to:      3.3.1
 Stable tag:        trunk
+
+
 
 Display Amazon.com customer reviews for products you specify on any page or post.
 
+
+
 == Description ==
+
+
 
 The ScrapeAZon plugin displays Amazon.com customer reviews of specific products that you choose. You must be a participant in both the Amazon.com Affiliate Program and the Amazon.com Product Advertising API in order to use this plugin. You can join the Amazon.com Affiliate Program by following the instructions at the program page. You can join the Product Advertising API by following the instructions at the Product Advertising API page.
 
+
+
 Features:
+
+
 
 * Allows use of a shortcode to display customer reviews for a specific product in any page or post.
 * Returns an iframe that can be styled by adding a class to your theme's CSS file.
 * Uses the latest version of the Amazon.com API.
 
+
+
 == Installation ==
+
+
 
 This section describes how to install the plugin and get it working.
 
+
 1. Obtain an AWS Access Key ID, an AWS Secret Key, and an Amazon.com Affiliate ID, if you don't already have them
+
 2. If you have a previous version of ScrapeAZon installed, deactivate and delete it from the '/wp-content/plugins/' directory
+
 3. Upload the ScrapeAZon folder to the '/wp-content/plugins/' directory
+
 4. Activate ScrapeAZon by using the 'Plugins' menu
+
 5. Under the Wordpress 'Settings' menu, click ScrapeAZon and configure the appropriate settings
 6. Add the [scrapeazon asin="<amazon.com product number>"] shortcode, where <amazon.com product number> is the ASIN or ISBN-10 of the product that contains the reviews you want to display, to the pages or posts you want
 
@@ -99,6 +118,9 @@ The border parameter currently only accepts a value of "false."
 
 == Upgrade Notice ==
 
+= 1.0.4 =
+Upgrade to 1.0.4 to be able to use ScrapeAZon in non-standard Wordpress environments.
+
 = 1.0.3 =
 Upgrade to version 1.0.3 to get more granular control over the appearance of the reviews iframe on your pages or posts. Additionally, ScrapeAZon is now compatible only with PHP installations that support cURL.
 
@@ -117,6 +139,9 @@ This is the first version of the plugin.
 2. A look at the plugin in action
 
 == Changelog ==
+
+= 1.0.4 =
+* Modified include path so that it works with uniquely named content directories
 
 = 1.0.3 =
 * Added shortcode parameters to style the iframe
