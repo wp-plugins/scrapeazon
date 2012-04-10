@@ -1,6 +1,6 @@
 <?php
 function scrapeazon_admin_add_page() {
-   add_options_page('ScrapeAzon Settings','ScrapeAZon','manage_options','options','scrapeazon_options');
+   add_options_page('ScrapeAzon Settings','ScrapeAZon','manage_options','scrapeaz-options','scrapeazon_options');
 }
 
 function scrapeazon_options() {

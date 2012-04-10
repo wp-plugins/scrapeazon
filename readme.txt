@@ -99,6 +99,9 @@ The border parameter currently only accepts a value of "false."
 
 == Upgrade Notice ==
 
+= 1.0.5 =
+Upgrade to 1.0.5 to fix options page so that it does not conflict with other plugins.
+
 = 1.0.4 =
 Upgrade to 1.0.4 to be able to use ScrapeAZon in non-standard Wordpress environments.
 
@@ -120,6 +123,9 @@ This is the first version of the plugin.
 2. A look at the plugin in action
 
 == Changelog ==
+
+= 1.0.5 =
+* Modified options page so that it uses a unique name that will not conflict with other plugins.
 
 = 1.0.4 =
 * Modified include path so that it works with uniquely named content directories
