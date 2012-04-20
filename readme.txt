@@ -8,7 +8,7 @@ Author URI:        http://www.timetides.com
 Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.1 
-Tested up to:      3.3.1
+Tested up to:      3.3.2
 Stable tag:        trunk
 
 Display Amazon.com customer reviews for products you specify on any page or post.
