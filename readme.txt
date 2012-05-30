@@ -32,7 +32,7 @@ This section describes how to install the plugin and get it working.
 3. Upload the ScrapeAZon folder to the '/wp-content/plugins/' directory
 4. Activate ScrapeAZon by using the 'Plugins' menu
 5. Under the Wordpress 'Settings' menu, click ScrapeAZon and configure the appropriate settings
-6. Add the [scrapeazon asin="<amazon.com product number>"] shortcode, where <amazon.com product number> is the ASIN or ISBN-10 of the product that contains the reviews you want to display, to the pages or posts you want
+6. Add the [scrapeazon asin="<amazon.com product number>"] shortcode, where <amazon.com product number> is the ASIN or ISBN-10 of the product that contains the reviews you want to display, to the pages or posts you want. For example, if you wanted to display reviews for a product with the ASIN of 012345689, you would issue the shortcode [scrapeazon asin="0123456789"]
 
 == Frequently Asked Questions ==
 
@@ -62,20 +62,15 @@ This plugin currently only accesses reviews on Amazon.com.
 
 Depending on your installation, your system might not support cURL, which is the default method of retrieval that ScrapeAZon uses. If your system does not support cURL, try selecting the checkbox on the ScrapeAZon settings page that configures the plugin to use file_get_contents instead.
 
-= The ScrapeAZon shortcode displays an error message on my page. What's up with that? =
+= ScrapeAZon isn't displaying *anything* on my page. What's up with that? =
 
-If the AWS server returns an error from your API request, ScrapeAZon displays that error to assist you in troubleshooting. Some common reasons you might see an error are:
+If the AWS server returns an error from your API request, ScrapeAZon displays an HTML comment in your page's source code that includes an error message to assist you in troubleshooting. Some common reasons you might see an error are:
 
 * Your AWS Access Key ID has not been set or is incorrect.
 * Your AWS Secret Key has not been set or is incorrect.
 * Your Amazon.com Associate ID has not been set or is incorrect.
 * You have not allowed enough time for your keys or IDs to propagate at Amazon.com.
-
-ScrapeAZon will **not** display an error if the product you include in the shortcode does not contain reviews. In that case, an HTML comment explaining that no reviews are available will be inserted into your page.
-
-= ScrapeAZon isn't displaying *anything* on my page. What's up with that? =
-
-ScrapeAZon will **not** display information on your page if the product you include in the shortcode does not contain reviews. In that case, an HTML comment explaining that no reviews are available will be inserted into your page.
+* There are no product reviews associated with the ASIN you used.
 
 If you know that reviews exist for the product you specified, ensure that the ASIN/ISBN-10 you provided in the shortcode is correct. Also, ensure that you are not viewing a previously cached version of your page that does not contain the shortcode.
 
