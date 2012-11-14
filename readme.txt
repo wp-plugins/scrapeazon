@@ -92,7 +92,24 @@ To style the iframe by using the shortcode, add width, height, and border as par
 
 The border parameter currently only accepts a value of "false."
 
+= Can I get rid of that annoying disclaimer at the bottom of the iframe? =
+
+If you know how to edit your theme's CSS, you probably can. However, doing so is not recommended unless you already manually display the disclaimer on your site. As of this writing, Amazon Services requires the disclaimer as part of its Product Advertising API terms.
+
+= Can I at least style the disclaimer differently? =
+
+If you want to use a different font, font size, or otherwise style the disclaimer, add a class named scrape-api to your theme's CSS file and make the changes within that class. For example, if you'd like the disclaimer to be in 9-point Helvetica and 540 pixels wide, you could add the following class to your CSS:
+
+.scrape-api {
+   width: 540px;
+   font-family: Helvetica;
+   font-size: 9pt;
+}
+
 == Upgrade Notice ==
+
+= 1.0.6 =
+Upgrade to 1.0.6 to enable ScrapeAZon to automatically display the disclaimer required in the Amazon Product Services API Terms.
 
 = 1.0.5 =
 Upgrade to 1.0.5 to fix options page so that it does not conflict with other plugins.
@@ -118,6 +135,9 @@ This is the first version of the plugin.
 2. A look at the plugin in action
 
 == Changelog ==
+
+= 1.0.6 =
+* Added an Amazon Product Advertising API ToS compliance function that automatically displays Amazon Services LLC's required disclaimer below content retrieved via the API.
 
 = 1.0.5 =
 * Modified options page so that it uses a unique name that will not conflict with other plugins.

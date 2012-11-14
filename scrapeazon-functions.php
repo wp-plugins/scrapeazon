@@ -1,4 +1,9 @@
 <?php
+function scrapeazon_api_compliance($scrape_api) {
+   $scrape_api = '<div class="scrape-api">CERTAIN CONTENT THAT APPEARS ON THIS SITE COMES FROM AMAZON SERVICES LLC. THIS CONTENT IS PROVIDED \'AS IS\' AND IS SUBJECT TO CHANGE OR REMOVAL AT ANY TIME.</div>';
+   return $scrape_api;
+}
+
 function scrapeazon_admin_add_page() {
    add_options_page('ScrapeAzon Settings','ScrapeAZon','manage_options','scrapeaz-options','scrapeazon_options');
 }
@@ -98,15 +103,16 @@ function scrapeazon_validate_affiliate($input) {
 
 function scrapeazon_shortcode($scrapeAtts) {
    extract( shortcode_atts( array(
+      'attributes' => '',
       'asin' => '',
       'border' => '',
       'width' => '',
       'height' => ''
 	  ), $scrapeAtts ) );
-   return scrapeazon_scrape($asin,$border,$width,$height);
+   return scrapeazon_scrape($attributes,$asin,$border,$width,$height);
 }
 
-function scrapeazon_scrape($asin,$border,$width,$height) {
+function scrapeazon_scrape($attributes,$asin,$border,$width,$height) {
    $scrape_aws_key = get_option('scrape-aws-access-key-id');
    $scrape_aws_secret = get_option('scrape-aws-secret-key');
    $scrape_aws_affiliate = get_option('scrape-amz-assoc-id');
@@ -125,7 +131,7 @@ function scrapeazon_scrape($asin,$border,$width,$height) {
      "&ItemId=" . $asin .
      "&MerchantId=All" .
      "&Operation=ItemLookup" .   
-     "&ResponseGroup=Reviews" .
+     "&ResponseGroup=Reviews,Offers" .
      "&Service=AWSECommerceService" .
      "&Timestamp=" . gmdate("Y-m-d\TH:i:s\Z") .
      "&Version=2011-08-01";
@@ -175,7 +181,8 @@ function scrapeazon_scrape($asin,$border,$width,$height) {
                  $scrape_message .= "\"";
               }
               
-              $scrape_message .= "></iframe>";
+              $scrape_message .= "></iframe><!--" . $uri . "-->";
+              $scrape_message .= scrapeazon_api_compliance('');
         } else {
               if($Result->Error->Message) {
                  $scrape_message = "<div id=\"scrape-error\"><h2>A ScrapeAZon Error Occurred</h2> " . $Result->Error->Code . ": " . $Result->Error->Message . "</div>\n";
