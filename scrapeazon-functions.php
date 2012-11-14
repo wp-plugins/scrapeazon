@@ -131,7 +131,7 @@ function scrapeazon_scrape($attributes,$asin,$border,$width,$height) {
      "&ItemId=" . $asin .
      "&MerchantId=All" .
      "&Operation=ItemLookup" .   
-     "&ResponseGroup=Reviews,Offers" .
+     "&ResponseGroup=Reviews" .
      "&Service=AWSECommerceService" .
      "&Timestamp=" . gmdate("Y-m-d\TH:i:s\Z") .
      "&Version=2011-08-01";
@@ -181,7 +181,7 @@ function scrapeazon_scrape($attributes,$asin,$border,$width,$height) {
                  $scrape_message .= "\"";
               }
               
-              $scrape_message .= "></iframe><!--" . $uri . "-->";
+              $scrape_message .= "></iframe>";
               $scrape_message .= scrapeazon_api_compliance('');
         } else {
               if($Result->Error->Message) {
