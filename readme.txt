@@ -8,7 +8,7 @@ Author URI:        http://www.timetides.com
 Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.1 
-Tested up to:      3.4
+Tested up to:      3.5
 Stable tag:        trunk
 
 Display Amazon.com customer reviews for products you specify on any page or post.
@@ -54,9 +54,31 @@ Amazon's API requires an affiliate account id in order to correctly process requ
 
 Amazon's API requires an AWS Access Key ID and an AWS Secret Key in order to correctly process requests and download information about item lookups. You cannot obtain this information unless you sign up for an account.
 
-= Can I scrape reviews from sites other than Amazon.com? =
+= Can I scrape reviews from sites other than Amazon? =
 
-This plugin currently only accesses reviews on Amazon.com.
+This plugin currently only accesses reviews on Amazon.
+
+= Can I scrape reviews from Amazon's international sites? =
+
+Yes, as of version 1.0.7. Configure the shortcode's <code>country</code> parameter with the appropriate two-character country code to change the Amazon site. For example, to retrieve reviews for ISBN 0123456789 from Amazon UK, you could issue the following shortcode:
+
+<code>[scrapeazon asin="0123456789" country="UK"]</code>
+
+The country codes are as follows:
+
+* AT: Austria (uses the German site)
+* CA: Canada
+* FR: France
+* DE: Germany
+* IT: Italy
+* JP: Japan
+* ES: Spain
+* UK: United Kingdom
+* US: United States (default)
+
+You can also globally configure a country code on the ScrapeAZon Settings page instead of specifying one for each shortcode used on your site. If you globally configure a country code and specify a country code in your shortcode, the country code in the shortcode will take precedence.
+
+Support for Amazon's China site is not currently available.
 
 = I'm getting weird PHP errors when ScrapeAZon attempts to retrieve a review. What's wrong? =
 
@@ -70,7 +92,7 @@ If the AWS server returns an error from your API request, ScrapeAZon displays an
 * Your AWS Secret Key has not been set or is incorrect.
 * Your Amazon.com Associate ID has not been set or is incorrect.
 * You have not allowed enough time for your keys or IDs to propagate at Amazon.com.
-* There are no product reviews associated with the ASIN you used.
+* Versions 1.0.6 and earlier: There are no product reviews associated with the ASIN you used.
 
 If you know that reviews exist for the product you specified, ensure that the ASIN/ISBN-10 you provided in the shortcode is correct. Also, ensure that you are not viewing a previously cached version of your page that does not contain the shortcode.
 
@@ -108,6 +130,9 @@ If you want to use a different font, font size, or otherwise style the disclaime
 
 == Upgrade Notice ==
 
+= 1.0.7 =
+Upgrade to 1.0.7 to enable Amazon international compatibility and to display the Amazon "Be the first to review" page when no reviews are available for a specific product.
+
 = 1.0.6 =
 Upgrade to 1.0.6 to enable ScrapeAZon to automatically display the disclaimer required in the Amazon Product Services API Terms.
 
@@ -135,6 +160,10 @@ This is the first version of the plugin.
 2. A look at the plugin in action
 
 == Changelog ==
+
+= 1.0.7 =
+* Can now display results from Amazon international sites. Sites are configurable on a per-shortcode basis. Default is the US site.
+* Now displays the Amazon "Be the first to review this" page instead of an HTML comment when no reviews exist.
 
 = 1.0.6 =
 * Added an Amazon Product Advertising API ToS compliance function that automatically displays Amazon Services LLC's required disclaimer below content retrieved via the API.

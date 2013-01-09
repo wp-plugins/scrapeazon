@@ -3,7 +3,7 @@
 Plugin Name: ScrapeAZon
 Plugin URI: http://www.timetides.com/scrapeazon-plugin-wordpress
 Description: Retrieves Amazon.com reviews for products you choose to display on your Wordpress blog.
-Version: 1.0.6
+Version: 1.0.7
 Author: James R. Hanback, Jr.
 Author URI: http://www.timetides.com
 License: GPL3

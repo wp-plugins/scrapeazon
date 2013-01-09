@@ -36,6 +36,19 @@ function scrapeazon_options() {
 <td valign="top" align="left"><input type="checkbox" name="scrape-getmethod" id="scrape-getmethod" value="1" <?php echo get_option('scrape-getmethod');?> /></td>
 <td valign="top" align="left" width="300">If you receive cURL errors when attempting to retrieve reviews, check this box to use file_get_contents instead.</td>
 </tr>
+<tr>
+<td valign="top" align="left" width="300">Country Code</td>
+<td valign="top" align="left"><?php
+	$scrape_dditems = array("--","AT", "CA", "FR", "DE", "IT", "JP", "ES","UK","US");
+	echo "<select id='scrape-getcountry' name='scrape-getcountry'>";
+	foreach($scrape_dditems as $dditem) {
+		$selected = (get_option('scrape-getcountry')==$dditem) ? 'selected="selected"' : '';
+		echo "<option value='$dditem' $selected>$dditem</option>";
+	}
+	echo "</select>";
+?>
+</td>
+</tr>
 </table>
 <p class="submit"><input type="submit" class="button-primary" value="<?php _e('Save Changes');?>"/></p>
 </form>
@@ -65,6 +78,17 @@ function scrapeazon_register_settings() {
    register_setting('scrapeazon_options','scrape-aws-secret-key','scrapeazon_validate_secret');
    register_setting('scrapeazon_options','scrape-amz-assoc-id','scrapeazon_validate_affiliate');
    register_setting('scrapeazon_options','scrape-getmethod','scrapeazon_validate_getmethod');
+   register_setting('scrapeazon_options','scrape-getcountry','scrapeazon_validate_getcountry');
+}
+
+function scrapeazon_validate_getcountry($input) {
+   $newKey = trim($input);
+   if(preg_match('/[A-Z\-][A-Z\-]/i',$input)) {
+      $newKey=$input;
+   } else {
+      $newKey = 'US';
+   }
+   return $newKey;
 }
 
 function scrapeazon_validate_getmethod($input) {
@@ -107,21 +131,63 @@ function scrapeazon_shortcode($scrapeAtts) {
       'asin' => '',
       'border' => '',
       'width' => '',
-      'height' => ''
+      'height' => '',
+      'country' => ''
 	  ), $scrapeAtts ) );
-   return scrapeazon_scrape($attributes,$asin,$border,$width,$height);
+   return scrapeazon_scrape($attributes,$asin,$border,$width,$height,$country);
 }
 
-function scrapeazon_scrape($attributes,$asin,$border,$width,$height) {
+function scrapeazon_scrape($attributes,$asin,$border,$width,$height,$country) {
    $scrape_aws_key = get_option('scrape-aws-access-key-id');
    $scrape_aws_secret = get_option('scrape-aws-secret-key');
    $scrape_aws_affiliate = get_option('scrape-amz-assoc-id');
    $scrape_getmethod = get_option('scrape-getmethod');
+   $scrape_getcountry = get_option('scrape-getcountry');
+   
+   if($country=='') {
+      if(($scrape_getcountry!='--')&&($scrape_getcountry!='')) {
+         $country = $scrape_getcountry;
+      } else {
+         $country = "US";
+      }
+   }
    
    if((preg_match('/\w/',$asin))&&(strlen($asin)==10)) {
+     // determine which amazon site to use
+     $scrape_domain = ".com";
+     $scrape_webservices = "webservices.amazon";
+     switch($country) {
+        case (preg_match('/US/i',$country) ? true : false) :
+             $scrape_domain = ".com";
+             break;
+        case (preg_match('/AT/i',$country) ? true : false) :
+             $scrape_domain = ".de";
+             break;
+        case (preg_match('/FR/i',$country) ? true : false) :
+             $scrape_domain = ".fr";
+             break;
+        case (preg_match('/JP/i',$country) ? true : false) :
+             $scrape_domain = ".co.jp";
+             break; 
+        case (preg_match('/CA/i',$country) ? true : false) :
+             $scrape_domain = ".ca";
+             break;   
+        case (preg_match('/DE/i',$country) ? true : false) :
+             $scrape_domain = ".de";
+             break;         
+        case (preg_match('/ES/i',$country) ? true : false) :
+             $scrape_domain = ".es";
+             break;
+        case (preg_match('/IT/i',$country) ? true : false) :
+             $scrape_domain = ".it";
+             break;
+        case (preg_match('/UK/i',$country) ? true : false) :
+             $scrape_domain = ".co.uk";
+             break;
+     }
    
      // construct the Amazon URL to retrieve the data
-     $host = "webservices.amazon.com";
+     $host = $scrape_webservices . $scrape_domain;
      $path = "/onca/xml";
      $req = "AssociateTag=" . $scrape_aws_affiliate .
      "&Availability=Available" .
@@ -165,7 +231,7 @@ function scrapeazon_scrape($attributes,$asin,$border,$width,$height) {
            $xml = file_get_contents($uri);
         }
         $Result = simplexml_load_string($xml);
-        if(preg_match('/^True$/i',$Result->Items->Item->CustomerReviews->HasReviews)) {
+        if($Result->Items->Item->CustomerReviews->HasReviews) {
               $scrape_message = "<iframe class=\"scrapeazon-reviews\" src=\"" . $Result->Items->Item->CustomerReviews->IFrameURL . "\"";
               if((strlen($border)>0)||(strlen($width)>0)||(strlen($height)>0)) {
                  $scrape_message .= " style=\"";
@@ -186,8 +252,6 @@ function scrapeazon_scrape($attributes,$asin,$border,$width,$height) {
         } else {
               if($Result->Error->Message) {
                  $scrape_message = "<div id=\"scrape-error\"><h2>A ScrapeAZon Error Occurred</h2> " . $Result->Error->Code . ": " . $Result->Error->Message . "</div>\n";
-              } else {
-                 $scrape_message = "\n<!-- ScrapeAZon did not find any available reviews. -->\n";
               }
         }
      } else {
