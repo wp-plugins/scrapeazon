@@ -1,4 +1,32 @@
 <?php
+function scrape_check_for_curl() {
+   if(in_array('curl',get_loaded_extensions())) {
+      return true;
+   } else {
+      return false;
+   }
+}
+function scrape_check_for_fopen() {
+   if(ini_get('allow_url_fopen')) {
+      return true;
+   } else {
+      return false;
+   }
+}
+function scrape_curl_exec_enabled() {
+  $disabled = explode(', ', ini_get('disable_functions'));
+  return !in_array('curl_exec', $disabled);
+}
+/* 
+   The following function was adapted from 
+   http://bavotasan.com/2009/a-settings-link-for-your-wordpress-plugins/ 
+*/
+function scrapeazon_settings_link($links) {
+  $settings_link = '<a href="options-general.php?page=scrapeaz-options">Settings</a>';
+  array_unshift($links,$settings_link);
+  return $links;
+  
+}
 function scrapeazon_api_compliance($scrape_api) {
    $scrape_api = '<div class="scrape-api">CERTAIN CONTENT THAT APPEARS ON THIS SITE COMES FROM AMAZON SERVICES LLC. THIS CONTENT IS PROVIDED \'AS IS\' AND IS SUBJECT TO CHANGE OR REMOVAL AT ANY TIME.</div>';
    return $scrape_api;
@@ -20,24 +48,20 @@ function scrapeazon_options() {
 
 <p>In order to access customer review data from Amazon.com, you must have an Amazon.com Associate ID, an Amazon Web Services (AWS) Access Key Id, and an AWS Secret Key. You can obtain an Associate ID by signing up to be an <a href="https://affiliate-program.amazon.com/" target="_blank">Amazon.com affiliate</a>. You can obtain the AWS credentials by signing up to use the <a href="https://affiliate-program.amazon.com/gp/advertising/api/detail/main.html" target="_blank">Product Advertising API</a>.</p>
 
-<table width="650" border="0">
-<tr><td valign="top" align="left" width="300">AWS Access Key ID</td>
+<table border="0">
+<tr><td valign="top" align="left" width="200">AWS Access Key ID</td>
 <td valign="top" align="left"><input type="text" name="scrape-aws-access-key-id" id="scrape-aws-access-key-id" size="80" value="<?php echo get_option('scrape-aws-access-key-id');?>" /><td>
 </tr>
 <tr>
-<td valign="top" align="left" width="300">AWS Secret Key</td>
+<td valign="top" align="left" width="200">AWS Secret Key</td>
 <td valign="top" align="left"><input type="text" name="scrape-aws-secret-key" id="scrape-aws-secret-key" size="80" value="<?php echo get_option('scrape-aws-secret-key');?>" /></td>
 </tr>
 <tr>
-<td valign="top" align="left" width="300">Amazon.com Associate ID</td>
+<td valign="top" align="left" width="200">Amazon.com Associate ID</td>
 <td valign="top" align="left"><input type="text" name="scrape-amz-assoc-id" id="scrape-amz-assoc-id" size="80" value="<?php echo get_option('scrape-amz-assoc-id');?>" /></td>
 </tr>
 <tr>
-<td valign="top" align="left"><input type="checkbox" name="scrape-getmethod" id="scrape-getmethod" value="1" <?php echo get_option('scrape-getmethod');?> /></td>
-<td valign="top" align="left" width="300">If you receive cURL errors when attempting to retrieve reviews, check this box to use file_get_contents instead.</td>
-</tr>
-<tr>
-<td valign="top" align="left" width="300">Country Code</td>
+<td valign="top" align="left" width="200">Country Code</td>
 <td valign="top" align="left"><?php
 	$scrape_dditems = array("--","AT", "CA", "FR", "DE", "IT", "JP", "ES","UK","US");
 	echo "<select id='scrape-getcountry' name='scrape-getcountry'>";
@@ -49,9 +73,44 @@ function scrapeazon_options() {
 ?>
 </td>
 </tr>
+<tr>
+<td valign="top" align="left" width="200">Requirements Check</td>
+<td valign="top" align="left">
+<?php
+$green = "<strong>cURL Status:</strong> ";
+$red = "<strong>file_get_contents Status:</strong> ";
+if((scrape_check_for_curl())&&(scrape_curl_exec_enabled())) {
+   $green .= '<span style="color:green">Available and enabled</span>';
+} elseif ((scrape_check_for_curl())&&(!(scrape_curl_exec_enabled()))) {
+   $green .= '<span style="color:red">Available, but not enabled</span>';
+} else {
+   $green = '<span style="color:red">Not available</span>';
+} 
+if(scrape_check_for_fopen()) {
+   $red .= '<span style="color:orange">Enabled</span>';
+   if((scrape_check_for_curl())&&(scrape_curl_exec_enabled())) {
+      $red .= '<span style="color:orange">, but you should use cURL</span>';
+   }
+} else {
+   $red .= '<span style="color:lime">Disabled</span>';
+} 
+echo $green . '<br>';
+echo $red;
+?>
+</td>
+</tr>
+<tr>
+<td valign="top" align="left"><input type="checkbox" name="scrape-getmethod" id="scrape-getmethod" value="1" <?php echo get_option('scrape-getmethod');?> /></td>
+<td valign="top" align="left" width="300">Select this checkbox to use file_get_contents instead of cURL (<span style="color:red">not recommended</span>).</td>
+</tr>
 </table>
 <p class="submit"><input type="submit" class="button-primary" value="<?php _e('Save Changes');?>"/></p>
 </form>
+
+<h2>ScrapeAZon Test Frame</h2>
+<p>After you click Save Changes, you should see an iframe that contains data from Amazon.com below. If you see the data, ScrapeAZon is configured correctly and should work on your site. If you see no data or you see an error displayed below, please double-check your configuration.</p>
+
+<?php echo do_shortcode('[scrapeazon asin="B006T3HM6W"]') ?>
 
 <h2>ScrapeAZon Usage</h2>
 
@@ -111,7 +170,7 @@ function scrapeazon_validate_access($input) {
 
 function scrapeazon_validate_secret($input) {
    $newKey = trim($input);
-   if((!preg_match('/^[\w\W]*$/i', $newKey))||(strlen($newKey)!=40)) {
+   if((!preg_match('/^[\w\W\/]*$/i', $newKey))||(strlen($newKey)!=40)) {
       $newKey = '';
    }
    return $newKey;
@@ -218,6 +277,7 @@ function scrapeazon_scrape($attributes,$asin,$border,$width,$height,$country) {
      $signature_string = "GET\n{$host}\n{$path}\n{$new_query}";
      $signature = urlencode(base64_encode(hash_hmac('sha256', $signature_string, $scrape_aws_secret, true)));
      $uri = "http://{$host}{$path}?{$new_query}&Signature={$signature}";
+     //echo '<a href="' . $uri . '" target="_blank">Direct Amazon API Link</a>';
      /* End of adapted code */
 
      if ((strlen($scrape_aws_key)==20)&&(strlen($scrape_aws_secret)==40)&&(strlen($scrape_aws_affiliate)>0))  {
@@ -250,8 +310,14 @@ function scrapeazon_scrape($attributes,$asin,$border,$width,$height,$country) {
               $scrape_message .= "></iframe>";
               $scrape_message .= scrapeazon_api_compliance('');
         } else {
+              // Error messages might also be $Result->Errors->Error->Message
+              if($Result->Items->Request->Errors->Error->Message) {
+                 $scrape_message = "<div id=\"scrape-error\"><h2>An Error Occurred</h2> " . $Result->Items->Request->Errors->Error->Code . ": " . $Result->Items->Request->Errors->Error->Message . "</div>\n";
+                 $scrape_message .= '<br><br><a href="' . $uri . '" target="_blank">Click here to view the Amazon API Results</a>';
+              }
               if($Result->Error->Message) {
-                 $scrape_message = "<div id=\"scrape-error\"><h2>A ScrapeAZon Error Occurred</h2> " . $Result->Error->Code . ": " . $Result->Error->Message . "</div>\n";
+                 $scrape_message = "<div id=\"scrape-error\"><h2>An Error Occurred</h2> " . $Result->Error->Code . ": " . $Result->Error->Message . "</div>\n";
+                 $scrape_message .= '<br><br><a href="' . $uri . '" target="_blank">Click here to view the Amazon API Results</a>';
               }
         }
      } else {

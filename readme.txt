@@ -8,7 +8,7 @@ Author URI:        http://www.timetides.com
 Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.1 
-Tested up to:      3.5
+Tested up to:      3.5.1
 Stable tag:        trunk
 
 Display Amazon.com customer reviews for products you specify on any page or post.
@@ -84,17 +84,24 @@ Support for Amazon's China site is not currently available.
 
 Depending on your installation, your system might not support cURL, which is the default method of retrieval that ScrapeAZon uses. If your system does not support cURL, try selecting the checkbox on the ScrapeAZon settings page that configures the plugin to use file_get_contents instead.
 
+As of ScrapeAZon version 1.0.8, the plugin will display messages on its Settings page that attempt to help you determine whether your system supports cURL, file_get_contents(), or neither of those features.
+
 = ScrapeAZon isn't displaying *anything* on my page. What's up with that? =
 
-If the AWS server returns an error from your API request, ScrapeAZon displays an HTML comment in your page's source code that includes an error message to assist you in troubleshooting. Some common reasons you might see an error are:
+Prior to version 1.0.7, if the AWS server returns an error from your API request, ScrapeAZon displays an HTML comment in your page's source code that includes an error message to assist you in troubleshooting. Some common reasons you might see an error are:
 
 * Your AWS Access Key ID has not been set or is incorrect.
 * Your AWS Secret Key has not been set or is incorrect.
 * Your Amazon.com Associate ID has not been set or is incorrect.
 * You have not allowed enough time for your keys or IDs to propagate at Amazon.com.
+* Your AWS Access Key ID and Secret Key are associated with an incorrect Amazon.com Product Advertising API account.
 * Versions 1.0.6 and earlier: There are no product reviews associated with the ASIN you used.
 
+As of version 1.0.7, any error messages that are returned by the Amazon Advertising API should be displayed in the shortcode output on your page.
+
 If you know that reviews exist for the product you specified, ensure that the ASIN/ISBN-10 you provided in the shortcode is correct. Also, ensure that you are not viewing a previously cached version of your page that does not contain the shortcode.
+
+It is also possible that you have configured ScrapeAZon to use a Web retrieval method that is not available in your environment. By default, ScrapeAZon attempts to use cURL. If cURL is not enabled in your environment, you can try to use file_get_contents() instead by selecting the checkbox on the Settings page. However, if neither cURL nor file_get_contents() is supported by your PHP installation, you will not be able to use ScrapeAZon.
 
 = The default iframe is really small. How do I change that? =
 
@@ -130,6 +137,9 @@ If you want to use a different font, font size, or otherwise style the disclaime
 
 == Upgrade Notice ==
 
+= 1.0.8 =
+Upgrade to 1.0.8 to enable basic ScrapeAZon troubleshooting features, such as a sample iframe and PHP environment detection.
+
 = 1.0.7 =
 Upgrade to 1.0.7 to enable Amazon international compatibility and to display the Amazon "Be the first to review" page when no reviews are available for a specific product.
 
@@ -160,6 +170,11 @@ This is the first version of the plugin.
 2. A look at the plugin in action
 
 == Changelog ==
+
+= 1.0.8 =
+* Added Settings page cues to better inform new users about their system environments as well as ScrapeAZon's system requirements.
+* Added a test iframe on the Settings page so that users can see immediately whether their configurations are working.
+* Added a Settings link to ScrapeAZon's settings from the Plugins page.
 
 = 1.0.7 =
 * Can now display results from Amazon international sites. Sites are configurable on a per-shortcode basis. Default is the US site.
