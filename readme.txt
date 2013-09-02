@@ -8,7 +8,7 @@ Author URI:        http://www.timetides.com
 Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.1 
-Tested up to:      3.5.1
+Tested up to:      3.6
 Stable tag:        trunk
 
 Display Amazon.com customer reviews for products you specify on any page or post.
@@ -68,17 +68,17 @@ The country codes are as follows:
 
 * AT: Austria (uses the German site)
 * CA: Canada
-* FR: France
+* CN: China
 * DE: Germany
+* ES: Spain
+* FR: France
+* IN: India
 * IT: Italy
 * JP: Japan
-* ES: Spain
 * UK: United Kingdom
 * US: United States (default)
 
 You can also globally configure a country code on the ScrapeAZon Settings page instead of specifying one for each shortcode used on your site. If you globally configure a country code and specify a country code in your shortcode, the country code in the shortcode will take precedence.
-
-Support for Amazon's China site is not currently available.
 
 = I'm getting weird PHP errors when ScrapeAZon attempts to retrieve a review. What's wrong? =
 
@@ -137,6 +137,9 @@ If you want to use a different font, font size, or otherwise style the disclaime
 
 == Upgrade Notice ==
 
+= 1.0.9 =
+Upgrade to 1.0.9 to enable support for the Amazon API in China and India.
+
 = 1.0.8 =
 Upgrade to 1.0.8 to enable basic ScrapeAZon troubleshooting features, such as a sample iframe and PHP environment detection.
 
@@ -170,6 +173,9 @@ This is the first version of the plugin.
 2. A look at the plugin in action
 
 == Changelog ==
+
+= 1.0.9 =
+* Added support for Amazon China and India API calls.
 
 = 1.0.8 =
 * Added Settings page cues to better inform new users about their system environments as well as ScrapeAZon's system requirements.

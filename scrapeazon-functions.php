@@ -63,7 +63,7 @@ function scrapeazon_options() {
 <tr>
 <td valign="top" align="left" width="200">Country Code</td>
 <td valign="top" align="left"><?php
-	$scrape_dditems = array("--","AT", "CA", "FR", "DE", "IT", "JP", "ES","UK","US");
+	$scrape_dditems = array("--","AT", "CA", "CN", "DE", "ES", "FR", "IN", "IT", "JP", "UK","US");
 	echo "<select id='scrape-getcountry' name='scrape-getcountry'>";
 	foreach($scrape_dditems as $dditem) {
 		$selected = (get_option('scrape-getcountry')==$dditem) ? 'selected="selected"' : '';
@@ -216,32 +216,38 @@ function scrapeazon_scrape($attributes,$asin,$border,$width,$height,$country) {
      $scrape_domain = ".com";
      $scrape_webservices = "webservices.amazon";
      switch($country) {
-        case (preg_match('/US/i',$country) ? true : false) :
-             $scrape_domain = ".com";
-             break;
         case (preg_match('/AT/i',$country) ? true : false) :
              $scrape_domain = ".de";
+             break;
+        case (preg_match('/CA/i',$country) ? true : false) :
+             $scrape_domain = ".ca";
+             break;
+        case (preg_match('/CN/i',$country) ? true : false) :
+             $scrape_domain = ".cn";
+             break;
+        case (preg_match('/DE/i',$country) ? true : false) :
+             $scrape_domain = ".de";
+             break;        
+        case (preg_match('/ES/i',$country) ? true : false) :
+             $scrape_domain = ".es";
              break;
         case (preg_match('/FR/i',$country) ? true : false) :
              $scrape_domain = ".fr";
              break;
-        case (preg_match('/JP/i',$country) ? true : false) :
-             $scrape_domain = ".co.jp";
-             break; 
-        case (preg_match('/CA/i',$country) ? true : false) :
-             $scrape_domain = ".ca";
-             break;   
-        case (preg_match('/DE/i',$country) ? true : false) :
-             $scrape_domain = ".de";
-             break;         
-        case (preg_match('/ES/i',$country) ? true : false) :
-             $scrape_domain = ".es";
-             break;
+        case (preg_match('/IN/i',$country) ? true : false) :
+             $scrape_domain = ".in";
+             break;  
         case (preg_match('/IT/i',$country) ? true : false) :
              $scrape_domain = ".it";
              break;
+        case (preg_match('/JP/i',$country) ? true : false) :
+             $scrape_domain = ".co.jp";
+             break;
         case (preg_match('/UK/i',$country) ? true : false) :
              $scrape_domain = ".co.uk";
+             break;
+        case (preg_match('/US/i',$country) ? true : false) :
+             $scrape_domain = ".com";
              break;
      }
    
@@ -290,6 +296,10 @@ function scrapeazon_scrape($attributes,$asin,$border,$width,$height,$country) {
         } else {
            $xml = file_get_contents($uri);
         }
+        // Throttle a bit in verison 1.0.9 and later
+        sleep(1);
+        
+        // Load results
         $Result = simplexml_load_string($xml);
         if($Result->Items->Item->CustomerReviews->HasReviews) {
               $scrape_message = "<iframe class=\"scrapeazon-reviews\" src=\"" . $Result->Items->Item->CustomerReviews->IFrameURL . "\"";
