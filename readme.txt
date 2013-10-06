@@ -8,7 +8,7 @@ Author URI:        http://www.timetides.com
 Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.1 
-Tested up to:      3.6
+Tested up to:      3.6.1
 Stable tag:        trunk
 
 Display Amazon.com customer reviews for products you specify on any page or post.
@@ -137,6 +137,9 @@ If you want to use a different font, font size, or otherwise style the disclaime
 
 == Upgrade Notice ==
 
+= 1.1.0 =
+Upgrade to 1.1.0 to enable automatic detection of HTTPS.
+
 = 1.0.9 =
 Upgrade to 1.0.9 to enable support for the Amazon API in China and India.
 
@@ -173,6 +176,9 @@ This is the first version of the plugin.
 2. A look at the plugin in action
 
 == Changelog ==
+
+= 1.1.0 =
+* Added support for the automatic detection of HTTPS sites.
 
 = 1.0.9 =
 * Added support for Amazon China and India API calls.

@@ -282,7 +282,12 @@ function scrapeazon_scrape($attributes,$asin,$border,$width,$height,$country) {
    
      $signature_string = "GET\n{$host}\n{$path}\n{$new_query}";
      $signature = urlencode(base64_encode(hash_hmac('sha256', $signature_string, $scrape_aws_secret, true)));
-     $uri = "http://{$host}{$path}?{$new_query}&Signature={$signature}";
+    if(isset($_SERVER['HTTPS']) || (is_ssl())) {
+        $scrape_proto = "https://";
+     } else {
+        $scrape_proto = "http://";
+     }
+     $uri = $scrape_proto . "{$host}{$path}?{$new_query}&Signature={$signature}";
      //echo '<a href="' . $uri . '" target="_blank">Direct Amazon API Link</a>';
      /* End of adapted code */
 
@@ -302,7 +307,8 @@ function scrapeazon_scrape($attributes,$asin,$border,$width,$height,$country) {
         // Load results
         $Result = simplexml_load_string($xml);
         if($Result->Items->Item->CustomerReviews->HasReviews) {
-              $scrape_message = "<iframe class=\"scrapeazon-reviews\" src=\"" . $Result->Items->Item->CustomerReviews->IFrameURL . "\"";
+              $scrape_iframe_url = str_replace('http://',$scrape_proto,$Result->Items->Item->CustomerReviews->IFrameURL);
+              $scrape_message = "<iframe class=\"scrapeazon-reviews\" src=\"" . $scrape_iframe_url . "\"";
               if((strlen($border)>0)||(strlen($width)>0)||(strlen($height)>0)) {
                  $scrape_message .= " style=\"";
                  if(preg_match('/false/i',$border)) {
