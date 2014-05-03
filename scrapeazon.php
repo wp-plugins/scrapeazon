@@ -49,7 +49,7 @@ if (is_admin()) {
 add_filter("plugin_action_links_$szPlugin", array(&$szOpts, 'szOptionsLink'));
 
 // Localization
-load_plugin_textdomain('scrapeazon-local',false,basename(dirname(__FILE__)).'/languages');
+load_plugin_textdomain('scrapeazon',false,basename(dirname(__FILE__)).'/lang');
 
 // Add shortcode functionality
 add_shortcode( 'scrapeazon', array(&$szShcd, 'szParseShortcode') );
