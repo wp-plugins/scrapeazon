@@ -39,6 +39,9 @@ $szShcd = new szShortcode;
 
 $szOpts->szRequireStyles();
 
+// Localization
+add_action('plugins_loaded', array(&$szReqs, 'szLoadLocal'));
+
 if (is_admin()) {
     add_action('admin_init', array(&$szOpts, 'szRegisterSettings'));
     add_action('admin_init', array(&$szReqs, 'szHideNotices'));
@@ -47,9 +50,6 @@ if (is_admin()) {
 }
 
 add_filter("plugin_action_links_$szPlugin", array(&$szOpts, 'szOptionsLink'));
-
-// Localization
-load_plugin_textdomain('scrapeazon',false,basename(dirname(__FILE__)).'/lang');
 
 // Add shortcode functionality
 add_shortcode( 'scrapeazon', array(&$szShcd, 'szParseShortcode') );

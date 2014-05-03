@@ -7,6 +7,11 @@ class szRequirements
     public $szFileGetEnabled = 'PHP fopen wrappers (file_get_contents) are enabled on your server. For security, <a href="http://www.php.net/manual/en/filesystem.configuration.php#ini.allow-url-fopen" target="_blank">disable fopen wrappers</a> and <a href="http://us2.php.net/manual/en/curl.setup.php">use cURL</a> instead.';
     public $szNoRetrieval = 'Neither client URL (cURL) nor fopen wrappers (file_get_contents) are enabled on your server. ScrapeAZon will not be able to retrieve reviews.';
 
+    public function szLoadLocal()
+    {
+        load_plugin_textdomain('scrapeazon',false,basename(dirname(__FILE__)).'/lang');
+    }
+
     public function szCurlCheck()
     {
         return (in_array('curl',get_loaded_extensions())) ? true : false;
