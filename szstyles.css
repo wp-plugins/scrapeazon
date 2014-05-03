@@ -1,0 +1,16 @@
+#scrapeazon-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling:touch;
+}
+#scrapeazon-iframe {
+    width: 100%;
+    height: 90%;
+    border: none;
+}
+.scrape-api,
+.scrapeazon-api,
+#scrapeazon-disclaimer {
+    width: 100%;
+}
