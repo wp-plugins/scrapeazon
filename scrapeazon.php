@@ -2,13 +2,15 @@
 /*
 Plugin Name: ScrapeAZon
 Plugin URI: http://www.timetides.com/scrapeazon-plugin-wordpress
-Description: Retrieves Amazon.com reviews for products you choose to display on your Wordpress blog.
-Version: 1.1.0
+Description: Retrieves Amazon.com reviews for products you choose from the Amazon Product Advertising API and displays those reviews in pages, posts, or as a widget on your WordPress blog. ScrapeAZon 2.0 features a new responsive layout option, better integration with the WordPress Settings API, contextual help, and a new exponential backoff method to help prevent errors when accessing the Amazon Product Advertising API from high-traffic sites.
+Version: 2.0.0
 Author: James R. Hanback, Jr.
 Author URI: http://www.timetides.com
 License: GPL3
+*/
 
-/*  Copyright 2011	James R. Hanback, Jr.  (email : james@jameshanback.com)
+/*
+Copyright 2011-2014	James R. Hanback, Jr.  (email : james@jameshanback.com)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,20 +27,34 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-# Load plugin files and configuration
-$scrplugin = plugin_basename(__FILE__); 
-$scrpath = plugin_dir_path(__FILE__);
-$scrpath .= '/scrapeazon-functions.php';
-include_once($scrpath);
+// Load plugin files and configuration
+$szPlugin = plugin_basename(__FILE__); 
+$szPPath = plugin_dir_path(__FILE__);
+$szPPath .= '/szclasses.php';
+include_once($szPPath);
 
-// Create admin page and settings, if required
+$szOpts = new szWPOptions;
+$szReqs = new szRequirements;
+$szShcd = new szShortcode;
+
+$szOpts->szRequireStyles();
+
+// Localization
+add_action('plugins_loaded', array(&$szReqs, 'szLoadLocal'));
+
 if (is_admin()) {
-   add_action('admin_menu','scrapeazon_admin_add_page');
-   add_action('admin_init','scrapeazon_register_settings');
+    add_action('admin_init', array(&$szOpts, 'szRegisterSettings'));
+    add_action('admin_init', array(&$szReqs, 'szHideNotices'));
+    add_action('admin_menu', array(&$szOpts, 'szAddAdminPage'));
+    add_action('admin_notices', array(&$szReqs, 'szShowNotices'));
 }
 
-add_filter("plugin_action_links_$scrplugin", 'scrapeazon_settings_link' );
+add_filter("plugin_action_links_$szPlugin", array(&$szOpts, 'szOptionsLink'));
 
 // Add shortcode functionality
-add_shortcode( 'scrapeazon', 'scrapeazon_shortcode' );
+add_shortcode( 'scrapeazon', array(&$szShcd, 'szParseShortcode') );
+
+// Add widget
+add_action('widgets_init',create_function('', 'return register_widget("szWidget");'));
+
 ?>
