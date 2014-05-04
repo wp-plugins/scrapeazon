@@ -58,6 +58,16 @@ ScrapeAZon has been rewritten from the ground up to more closely integrate with 
 
 An ASIN is an Amazon.com product identification number. ScrapeAZon uses this identifier to download the correct customer reviews that are associated with a product. An ASIN can be assigned by Amazon.com or, in case of a book, the 10-character version of the ISBN.
 
+= Can I use an identified other than an ASIN to retrieve reviews? =
+
+Yes, as of ScrapeAZon 2.0.1, you can replace the asin parameter in a shortcode with any of the following parameters:
+
+* isbn
+* upc
+* ean
+
+However, the ScrapeAZon widget currently only supports the ASIN identifier.
+
 = Why do I need to sign up for an Amazon Affiliate account? =
 
 Amazon's API requires an affiliate account id in order to correctly process requests and download information about item lookups.
@@ -160,6 +170,9 @@ If you want to use a different font, font size, or otherwise style the disclaime
 
 == Upgrade Notice ==
 
+= 2.0.1 =
+Upgrade to 2.0.1 to enable ScrapeAZon to retrieve reviews by using ISBN, UPC, or EAN parameters instead of ASIN.
+
 = 2.0.0 =
 Upgrade to 2.0.0 to enable better Wordpress Settings API integration, better API throttling protection, the possibility of using responsive styles, and the ability to use ScrapeAZon as a widget.
 
@@ -203,6 +216,11 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
+
+= 2.0.1 =
+* Added support for retrieving reviews by ISBN.
+* Added support for retrieving reviews by UPC.
+* Added support for retrieving reviews by EAN.
 
 = 2.0.0 =
 * Plugin has been completely rewritten to better integrate with the Wordpress Settings API.

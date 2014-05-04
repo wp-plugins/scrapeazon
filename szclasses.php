@@ -772,13 +772,26 @@ class szShortcode
          
          return "?{$newSZQuery}&Signature={$szSignature}";
     }
+    
+    public function szGetIDType($szASIN,$szUPC,$szISBN,$szEAN)
+    {
+        $szItemType = $szASIN . '&IdType=ASIN';
+        
+        if(isset($szEAN))  { $szItemType = $szEAN . '&IdType=EAN&SearchIndex=All'; }
+        if(isset($szUPC))  { $szItemType = $szUPC . '&IdType=UPC&SearchIndex=All'; }
+        if(isset($szISBN)) { $szItemType = $szISBN . '&IdType=ISBN&SearchIndex=All'; }
+        
+        return $szItemType;
+    }
 
-    public function szAmazonURL($szASIN,$szCountry)
+    public function szAmazonURL($szASIN,$szUPC,$szISBN,$szEAN,$szCountry)
     {
         $szSets   = new szWPOptions();
         $szSecret = $szSets->getSecretKey();
         
-        $szSSLR = $this->szIsSSL();
+        $szSSLR   = $this->szIsSSL();
+        
+        $szItemID = $this->szGetIDType($szASIN,$szUPC,$szISBN,$szEAN);
         
         $szUCCountry = strtoupper($szCountry);
         $szDomain = (in_array($szUCCountry,$szSets->szCountries)) ? $this->szGetDomain($szUCCountry) : $this->szGetDomain($szSets->getCountryID());
@@ -794,7 +807,7 @@ class szShortcode
                   '&Condition=All' .
                   '&IncludeReviewsSummary=True' .
                   '&ItemId=' . 
-                  $szASIN .
+                  $szItemID . 
                   '&MerchantId=All' .
                   '&Operation=ItemLookup' .   
                   '&ResponseGroup=Reviews' .
@@ -806,7 +819,7 @@ class szShortcode
          $szAWSURI = $szSSLR . $szHost . $szPath . $this->szGetSignature($szHost,$szPath,$szQuery,$szSecret);
          
          unset($szSets);
-         
+
          return $szAWSURI;   
     }
 
@@ -835,7 +848,7 @@ class szShortcode
         }
 
         unset($szSets);
-        
+
         return $szXML;
     }
     
@@ -912,13 +925,16 @@ class szShortcode
     {
         extract( shortcode_atts( array(
                  'asin'       => '',
+                 'upc'        => '',
+                 'isbn'       => '',
+                 'ean'        => '',
                  'border'     => '',
                  'width'      => '',
                  'height'     => '',
                  'country'    => ''
 	           ), $szSCAtts) );
 	           
-        $szURL        = $this->szAmazonURL($szSCAtts["asin"],$szSCAtts["country"]);
+        $szURL        = $this->szAmazonURL($szSCAtts["asin"],$szSCAtts["upc"],$szSCAtts["isbn"],$szSCAtts["ean"],$szSCAtts["country"]);
         $szXML        = $this->szCallAmazonAPI($szURL);
         $szFrameURL   = $this->szRetrieveFrameURL($szXML);
         
