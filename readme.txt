@@ -74,8 +74,6 @@ The upc parameter enables you to retrieve reviews for a product based on that pr
 
 The ean parameter enables you to retrieve reviews for a product based on that product's European Article Number (EAN).
 
-However, the ScrapeAZon widget currently only supports the ASIN identifier.
-
 = Why do I need to sign up for an Amazon Affiliate account? =
 
 Amazon's API requires an affiliate account id in order to correctly process requests and download information about item lookups.
