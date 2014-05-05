@@ -58,13 +58,21 @@ ScrapeAZon has been rewritten from the ground up to more closely integrate with 
 
 An ASIN is an Amazon.com product identification number. ScrapeAZon uses this identifier to download the correct customer reviews that are associated with a product. An ASIN can be assigned by Amazon.com or, in case of a book, the 10-character version of the ISBN.
 
-= Can I use an identified other than an ASIN to retrieve reviews? =
+= Can I use an identifier other than an ASIN to retrieve reviews? =
 
 Yes, as of ScrapeAZon 2.0.1, you can replace the asin parameter in a shortcode with any of the following parameters:
 
 * isbn
 * upc
 * ean
+
+The isbn parameter enables you to retrieve reviews for a book or an ebook by using an International Standard Book Number (ISBN). For example, you could use an ISBN retrieve reviews for Stephen King's 11/22/63 by using the following shortcode:
+
+[scrapeazon isbn="9781451627299"]
+
+The upc parameter enables you to retrieve reviews for a product based on that product's Universal Product Code (UPC).
+
+The ean parameter enables you to retrieve reviews for a product based on that product's European Article Number (EAN).
 
 However, the ScrapeAZon widget currently only supports the ASIN identifier.
 
@@ -124,6 +132,7 @@ Some common reasons you might see an error or nothing at all are:
 * Your site's HTTP client (cURL or fopen wrappers) was not able to connect to the Amazon API.
 * Your site has sent too many requests per second to the Amazon Product Advertising API and Amazon has throttled your access.
 * Your site caches the pages that display reviews for an extended period of time (longer than 24 hours).
+* Your site's server date, time, or time zone are not properly configured.
 
 If you know that reviews exist for the product you specified, ensure that the ASIN/ISBN-10 you provided in the shortcode is correct. Also, ensure that you are not viewing a previously cached version of your page that does not contain the shortcode.
 
@@ -170,8 +179,8 @@ If you want to use a different font, font size, or otherwise style the disclaime
 
 == Upgrade Notice ==
 
-= 2.0.1 =
-Upgrade to 2.0.1 to enable ScrapeAZon to retrieve reviews by using ISBN, UPC, or EAN parameters instead of ASIN.
+= 2.0.2 =
+Upgrade to 2.0.2 to enable ScrapeAZon to retrieve reviews by using ISBN, UPC, EAN, or ASIN parameters.
 
 = 2.0.0 =
 Upgrade to 2.0.0 to enable better Wordpress Settings API integration, better API throttling protection, the possibility of using responsive styles, and the ability to use ScrapeAZon as a widget.
@@ -217,10 +226,12 @@ This is the first version of the plugin.
 
 == Changelog ==
 
-= 2.0.1 =
-* Added support for retrieving reviews by ISBN.
-* Added support for retrieving reviews by UPC.
-* Added support for retrieving reviews by EAN.
+= 2.0.2 =
+* Added support for retrieving reviews by ISBN to shortcode and widget.
+* Added support for retrieving reviews by UPC to shortcode and widget.
+* Added support for retrieving reviews by EAN to shortcode and widget.
+* Updated FAQ.
+* Updated help.
 
 = 2.0.0 =
 * Plugin has been completely rewritten to better integrate with the Wordpress Settings API.

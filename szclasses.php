@@ -541,7 +541,15 @@ class szWPOptions
                           '<i>amazon-asin-number</i> ' .
                           __('is the ASIN or ISBN-10 of the product reviews you want to retrieve. The shortcode must be issued in text format in your page or post, not Visual format. Otherwise, the quotation marks inside the shortcode might be rendered incorrectly.','scrapeazon') .
                           '</p><p>' .
-                          __('You can issue the ScrapeAZon shortcode with the following additional parameters','scrapeazon') .
+                          __('You can also issue the ScrapeAZon shortcode with one of the following identifers instead of using an ASIN','scrapeazon') .
+                          ':<ul><li><code>isbn</code>: ' .
+                          __('Retrieves reviews by using an International Standard Book Number (ISBN) value','scrapeazon') .
+                          '</li><li><code>upc</code>: ' .
+                          __('Retrieves reviews by using a Universal Product Code (UPC) value','scrapeazon') .
+                          '</li><li><code>ean</code>: ' .
+                          __('Retrieves reviews by using a European Article Number (EAN) value','scrapeazon') .
+                          '</li></ul></p><p>' .
+                          __('You can also issue the ScrapeAZon shortcode with the following additional parameters','scrapeazon') .
                           ':<ul><li><code>width</code>: ' .
                           __('Specifies the width of the reviews iframe, or of the containing element if the responsive option is enabled.','scrapeazon') .
                           '</li><li><code>height</code>: ' .
@@ -612,7 +620,11 @@ class szWidget extends WP_Widget {
 			echo $args['before_title'] . $title . $args['after_title'];
 		if( isset ($instance[ 'asin' ]) )
 		{
-		    $szSCode = '[scrapeazon asin="' . strip_tags($instance['asin']) . '"';
+		    if(empty($instance['itype']))
+		    {
+		        $instance['itype'] = 'asin';
+		    }
+		    $szSCode = '[scrapeazon ' . strip_tags($instance['itype']) . '="' . strip_tags($instance['asin']) . '"';
 		    if(($instance['width']!=0) && isset ($instance[ 'width' ]) )
 		    {
 		        $szSCode .= ' width="' . asbint($instance[ 'width' ]) . '"';
@@ -640,6 +652,14 @@ class szWidget extends WP_Widget {
 		else 
 		{
 			$title = __( 'Amazon Reviews', 'scrapeazon' );
+		}
+		if ( isset( $instance[ 'itype'] ) )
+		{
+		    $itype = $instance['itype'];
+		}
+		else
+		{
+		    $itype = 'asin';
 		}
 		if ( isset( $instance[ 'asin' ] ) ) 
 		{
@@ -677,7 +697,14 @@ class szWidget extends WP_Widget {
 		<p>
 		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:','scrapeazon'); ?></label> 
 		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>">
- 		<label for="<?php echo $this->get_field_id( 'asin' ); ?>"><?php _e('ASIN:','scrapeazon'); ?></label>
+ 		<label for="<?php echo $this->get_field_id( 'itype' ); ?>"><?php _e('ID Type:','scrapeazon'); ?></label>
+        <select class="widefat" id="<?php echo $this->get_field_id( 'itype' ); ?>" name="<?php echo $this->get_field_name( 'itype' ); ?>">
+        <option value="asin" <?php echo (esc_attr($itype)=='asin') ? 'selected' : ''; ?>>ASIN</option>
+        <option value="isbn" <?php echo (esc_attr($itype)=='isbn') ? 'selected' : ''; ?>>ISBN</option>
+        <option value="upc" <?php echo (esc_attr($itype)=='upc') ? 'selected' : ''; ?>>UPC</option>
+        <option value="ean" <?php echo (esc_attr($itype)=='ean') ? 'selected' : ''; ?>>EAN</option>
+        </select>
+ 		<label for="<?php echo $this->get_field_id( 'asin' ); ?>"><?php _e('ID:','scrapeazon'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id( 'asin' ); ?>" name="<?php echo $this->get_field_name( 'asin' ); ?>" type="text" value="<?php echo esc_attr( $asin ); ?>">
  		<label for="<?php echo $this->get_field_id( 'width' ); ?>"><?php _e('Width (in pixels):','scrapeazon'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id( 'width' ); ?>" name="<?php echo $this->get_field_name( 'width' ); ?>" type="text" value="<?php echo esc_attr( $width ); ?>">
@@ -693,6 +720,7 @@ class szWidget extends WP_Widget {
     {
 		$instance = array();
 		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+		$instance['itype'] = ( ! empty( $new_instance['itype'] ) ) ? strip_tags( $new_instance['itype'] ) : '';
 		$instance['asin']  = ( ! empty( $new_instance['asin'] ) ) ? strip_tags( $new_instance['asin'] ) : '';
 		$instance['width']  = ( ! empty( $new_instance['width'] ) ) ? strip_tags( $new_instance['width'] ) : '';
 		$instance['height']  = ( ! empty( $new_instance['height'] ) ) ? strip_tags( $new_instance['height'] ) : '';
@@ -777,9 +805,9 @@ class szShortcode
     {
         $szItemType = $szASIN . '&IdType=ASIN';
         
-        if(isset($szEAN))  { $szItemType = $szEAN . '&IdType=EAN&SearchIndex=All'; }
-        if(isset($szUPC))  { $szItemType = $szUPC . '&IdType=UPC&SearchIndex=All'; }
-        if(isset($szISBN)) { $szItemType = $szISBN . '&IdType=ISBN&SearchIndex=All'; }
+        if(isset($szEAN))  { $szItemType = absint($szEAN) . '&IdType=EAN&SearchIndex=All'; }
+        if(isset($szUPC))  { $szItemType = absint($szUPC) . '&IdType=UPC&SearchIndex=All'; }
+        if(isset($szISBN)) { $szItemType = absint($szISBN) . '&IdType=ISBN&SearchIndex=All'; }
         
         return $szItemType;
     }
