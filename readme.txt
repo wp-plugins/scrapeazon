@@ -8,7 +8,7 @@ Author URI:        http://www.timetides.com
 Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.3 
-Tested up to:      3.9
+Tested up to:      3.9.1
 Stable tag:        2.0.0
 License:           GPL3
 
@@ -178,7 +178,7 @@ If you want to use a different font, font size, or otherwise style the disclaime
 == Upgrade Notice ==
 
 = 2.0.2 =
-Upgrade to 2.0.2 to enable ScrapeAZon to retrieve reviews by using ISBN, UPC, EAN, or ASIN parameters.
+Upgrade to 2.0.2 to enable ScrapeAZon shortcodes and the ScrapeAZon widget to retrieve reviews by using ISBN, UPC, EAN, or ASIN parameters.
 
 = 2.0.0 =
 Upgrade to 2.0.0 to enable better Wordpress Settings API integration, better API throttling protection, the possibility of using responsive styles, and the ability to use ScrapeAZon as a widget.
@@ -228,8 +228,10 @@ This is the first version of the plugin.
 * Added support for retrieving reviews by ISBN to shortcode and widget.
 * Added support for retrieving reviews by UPC to shortcode and widget.
 * Added support for retrieving reviews by EAN to shortcode and widget.
+* Modified Settings field labels.
 * Updated FAQ.
 * Updated help.
+* Updated POT file.
 
 = 2.0.0 =
 * Plugin has been completely rewritten to better integrate with the Wordpress Settings API.

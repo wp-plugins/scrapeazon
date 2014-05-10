@@ -1,4 +1,28 @@
 <?php
+/*  szClasses.php is part of the ScrapeAZon plugin for WordPress
+
+This file is distributed as part of the ScrapeAZon plugin for WordPress
+and is not intended to be used apart from that package. You can download
+the entire ScrapeAZon plugin from the WordPress plugin repository at
+http://wordpress.org/plugins/scrapeazon/
+*/
+
+/*  Copyright 2011-2014	James R. Hanback, Jr.  (email : james@jameshanback.com)
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 class szRequirements
 {
@@ -216,8 +240,6 @@ class szWPOptions
     
     public function szTestCallback()
     {
-        //_e('<p>If you have correctly configured ScrapeAZon, you should see an iframe below that contains Amazon.com reviews for the Kindle short story <a href="http://www.amazon.com/Dislike-Isaac-Thorne-ebook/dp/B00HPCF5VU" target="_blank">located here</a> on Amazon. The shortcode used to produce this test is <code>[scrapeazon asin="B00HPCF5VU" width="500" height="400" border="false" country="us"]</code>. If you see reviews in the iframe below, ScrapeAZon is configured correctly and should work on your site. If you see no data or if you see an error displayed below, please double-check your configuration.</p>','scrapeazon');
-
         $sz1      = __('If you have correctly configured ScrapeAZon, you should see an iframe below that contains Amazon.com reviews for the Kindle short story ','scrapeazon');
         $sz2      = __('located here','scrapeazon');
         $sz3      = __(' on Amazon. The shortcode used to produce this test is ','scrapeazon');
@@ -251,7 +273,6 @@ class szWPOptions
        
     public function szAddAdminPage() 
     {
-        //$szOptionsPage = add_menu_page('ScrapeAZon','ScrapeAZon','manage_options','scrapeaz-options',array(&$this, 'szGetOptionsScreen'),((get_bloginfo('version')>3.7) ? 'dashicons-star-half' : ''));
         $szOptionsPage = add_submenu_page('options-general.php','ScrapeAZon','ScrapeAZon','manage_options','scrapeaz-options',array(&$this, 'szGetOptionsScreen'));
         $szTestingPage = add_submenu_page('scrapeaz-options','Tests','Tests','manage_options','scrapeaz-tests',array(&$this, 'szGetOptionsScreen'));
         $szUsingPage   = add_submenu_page('scrapeaz-options','Usage','Usage','manage_options','scrapeaz-usages',array(&$this, 'szGetOptionsScreen'));    
@@ -334,7 +355,7 @@ class szWPOptions
     {
         $szField  = '<input type="text" id="scrape-aws-access-key-id" name="scrape-aws-access-key-id" value="';
         $szField .= $this->getAccessKey();
-        $szField .= '"/>';
+        $szField .= '"/><br />';
         $szField .= '<label for="scrape-aws-access-key-id"> '  . sanitize_text_field($args[0]) . '</label>';
         echo $szField;
     }
@@ -343,7 +364,7 @@ class szWPOptions
     {
         $szField  = '<input type="text" id="scrape-aws-secret-key" name="scrape-aws-secret-key" value="';
         $szField .= $this->getSecretKey();
-        $szField .= '"/>';
+        $szField .= '"/><br />';
         $szField .= '<label for="scrape-aws-secret-key"> '  . sanitize_text_field($args[0]) . '</label>';
         echo $szField;
     }
@@ -352,7 +373,7 @@ class szWPOptions
     {
         $szField  = '<input type="text" id="scrape-amz-assoc-id" name="scrape-amz-assoc-id" value="';
         $szField .= $this->getAssocID();
-        $szField .= '"/>';
+        $szField .= '"/><br />';
         $szField .= '<label for="scrape-amz-assoc-id"> '  . sanitize_text_field($args[0]) . '</label>';
         echo $szField;
     }
@@ -362,7 +383,7 @@ class szWPOptions
         $szField  = '<input type="checkbox" name="scrape-getmethod" id="scrape-getmethod" value="1" ' .
                     checked(1, $this->getRetrieveMethod(), false) .
                     $this->getRetrieveMethod() .
-                    ' />';
+                    ' /><br />';
         $szField .= '<label for="scrape-getmethod"> '  . sanitize_text_field($args[0]) . '</label>';
         echo $szField;
     }
@@ -381,7 +402,7 @@ class szWPOptions
 		                sanitize_text_field($szDDitem) .
 		                '</option>';
 	    }
-	    $szField .= '</select>';
+	    $szField .= '</select><br />';
         $szField .= '<label for="scrape-getcountry"> '  . sanitize_text_field($args[0]) . '</label>';
 	    echo $szField;
     }
@@ -390,14 +411,14 @@ class szWPOptions
     {
         $szField  = '<input type="checkbox" name="scrape-responsive" id="scrape-responsive" value="1" ' .
                      checked(1, $this->getResponsive(), false) .
-                     ' />';
+                     ' /><br />';
         $szField .= '<label for="scrape-responsive"> '  . sanitize_text_field($args[0]) . '</label>';
         echo $szField;
     }
     
     public function szRestoreNoticesField($args)
     {
-        $szField  = '<a href="?page=scrapeaz-options&restore_szNotices=1">' . __('Restore Hidden ScrapeAZon Notices','scrapeazon') . '</a>';
+        $szField  = '<a href="?page=scrapeaz-options&restore_szNotices=1">' . __('Restore Hidden ScrapeAZon Notices','scrapeazon') . '</a><br />';
         $szField .= '<label for="scrape-restore"> ' . sanitize_text_field($args[0]) . '</label>';
         echo $szField;
     }
@@ -460,7 +481,7 @@ class szWPOptions
             'scrapeaz-options',
             'scrapeazon_retrieval_section',
             array(
-                __('Select this checkbox to use fopen wrappers if your host does not support cURL <span style="color:red">(not recommended)</span>.','scrapeazon')
+                __('Select this checkbox to use fopen wrappers if your host does not support cURL (not recommended).','scrapeazon')
             )
         );
         
@@ -501,7 +522,7 @@ class szWPOptions
     public function szAddHelp($szContextHelp)
     {
         $szOverview     = '<p>' .
-                          __('The ScrapeAZon plugin retrieves Amazon.com customer reviews for products you choose and displays them in pages or posts on your Wordpress blog by way of a Wordpress shortcode.','scrapeazon') .
+                          __('The ScrapeAZon plugin retrieves Amazon.com customer reviews for products you choose and displays them in pages or posts on your WordPress blog by way of a WordPress shortcode.','scrapeazon') .
                           '</p> <p>' .
                           __('You must be a participant in both the Amazon.com Affiliate Program and the Amazon.com Product Advertising API in order to use this plugin. Links to Amazon.com forms to join those programs are available on the ScrapeAZon Settings page.','scrapeazon') .
                           '</p> <p><strong>' .
