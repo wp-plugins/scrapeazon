@@ -828,7 +828,7 @@ class szShortcode
         
         if(isset($szEAN))  { $szItemType = absint($szEAN) . '&IdType=EAN&SearchIndex=All'; }
         if(isset($szUPC))  { $szItemType = absint($szUPC) . '&IdType=UPC&SearchIndex=All'; }
-        if(isset($szISBN)) { $szItemType = absint($szISBN) . '&IdType=ISBN&SearchIndex=All'; }
+        if(isset($szISBN)) { $szItemType = sanitize_text_field($szISBN) . '&IdType=ISBN&SearchIndex=All'; }
         
         return $szItemType;
     }

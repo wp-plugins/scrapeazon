@@ -177,7 +177,7 @@ If you want to use a different font, font size, or otherwise style the disclaime
 
 == Upgrade Notice ==
 
-= 2.0.2 =
+= 2.0.3 =
 Upgrade to 2.0.2 to enable ScrapeAZon shortcodes and the ScrapeAZon widget to retrieve reviews by using ISBN, UPC, EAN, or ASIN parameters.
 
 = 2.0.0 =
@@ -224,7 +224,7 @@ This is the first version of the plugin.
 
 == Changelog ==
 
-= 2.0.2 =
+= 2.0.3 =
 * Added support for retrieving reviews by ISBN to shortcode and widget.
 * Added support for retrieving reviews by UPC to shortcode and widget.
 * Added support for retrieving reviews by EAN to shortcode and widget.
