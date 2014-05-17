@@ -178,7 +178,7 @@ If you want to use a different font, font size, or otherwise style the disclaime
 == Upgrade Notice ==
 
 = 2.0.3 =
-Upgrade to 2.0.2 to enable ScrapeAZon shortcodes and the ScrapeAZon widget to retrieve reviews by using ISBN, UPC, EAN, or ASIN parameters.
+Upgrade to 2.0.3 to enable ScrapeAZon shortcodes and the ScrapeAZon widget to retrieve reviews by using ISBN, UPC, EAN, or ASIN parameters.
 
 = 2.0.0 =
 Upgrade to 2.0.0 to enable better Wordpress Settings API integration, better API throttling protection, the possibility of using responsive styles, and the ability to use ScrapeAZon as a widget.
