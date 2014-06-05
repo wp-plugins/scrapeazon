@@ -864,7 +864,7 @@ class szShortcode
                   '&Service=AWSECommerceService' .
                   '&Timestamp=' . 
                   gmdate("Y-m-d\TH:i:s\Z") .
-                  '&Version=2011-08-01'; 
+                  '&Version=2013-08-01'; 
 
          $szAWSURI = $szSSLR . $szHost . $szPath . $this->szGetSignature($szHost,$szPath,$szQuery,$szSecret);
          
