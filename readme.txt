@@ -9,7 +9,7 @@ Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.3 
 Tested up to:      3.9.1
-Stable tag:        2.0.3
+Stable tag:        2.0.4
 License:           GPL3
 
 Display Amazon.com customer reviews for products you specify in WordPress pages or posts, or as a widget.
@@ -177,6 +177,9 @@ If you want to use a different font, font size, or otherwise style the disclaime
 
 == Upgrade Notice ==
 
+= 2.0.4 =
+Updated Advertising API version to 2013-08-01.
+
 = 2.0.3 =
 Upgrade to 2.0.3 to enable ScrapeAZon shortcodes and the ScrapeAZon widget to retrieve reviews by using ISBN, UPC, EAN, or ASIN parameters.
 
@@ -223,6 +226,9 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
+
+= 2.0.4 =
+* Updated query string to use Product Advertising API version 2013-08-01.
 
 = 2.0.3 =
 * Added support for retrieving reviews by ISBN to shortcode and widget.
