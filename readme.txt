@@ -177,6 +177,9 @@ If you want to use a different font, font size, or otherwise style the disclaime
 
 == Upgrade Notice ==
 
+= 2.0.5 =
+Fixes input sanitization issue that prevents some UPC reviews from being displayed.
+
 = 2.0.4 =
 Updated Advertising API version to 2013-08-01.
 
@@ -226,6 +229,9 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
+
+= 2.0.5 =
+* Updated input sanitization to fix an issue that wsa preventing some UPC code reviews from being displayed.
 
 = 2.0.4 =
 * Updated query string to use Product Advertising API version 2013-08-01.
