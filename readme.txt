@@ -177,6 +177,9 @@ If you want to use a different font, font size, or otherwise style the disclaime
 
 == Upgrade Notice ==
 
+= 2.0.6 =
+Optimizes instantiation/destruction of the data retrieval function.
+
 = 2.0.5 =
 Fixes input sanitization issue that prevents some UPC reviews from being displayed.
 
@@ -229,6 +232,10 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
+
+= 2.0.6 =
+* Updated data retrieval function to optimize instantiation/destruction.
+* Fixed a bug in the HTTP retries code that might hinder performance on some sites.
 
 = 2.0.5 =
 * Updated input sanitization to fix an issue that wsa preventing some UPC code reviews from being displayed.

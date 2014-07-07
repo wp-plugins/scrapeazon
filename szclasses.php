@@ -879,24 +879,33 @@ class szShortcode
         $szRetries   = 0;
         $szSCCode    = "500";
         
-        while(($szRetries<5)&&($szCCode != "200")) {
+        if($szSets->getRetrieveMethod()!=1) 
+        {
+           $szCurl = curl_init();
+           curl_setopt($szCurl, CURLOPT_URL, $szURL);
+           curl_setopt($szCurl, CURLOPT_RETURNTRANSFER, true);
+        }
+        
+        while(($szRetries<5)&&(!preg_match("/200/",$szSCCode))) {
             usleep(500000*pow($szRetries,2));
             if($szSets->getRetrieveMethod()==1)
             {
                 $szXML = file_get_contents($szURL);
+                $szSCCode = $http_response_header[0];
             }
             else 
             {
-                $szCurl = curl_init();
-                curl_setopt($szCurl, CURLOPT_URL, $szURL);
-                curl_setopt($szCurl, CURLOPT_RETURNTRANSFER, true);
                 $szXML = curl_exec($szCurl);
-                $szCCode = curl_getinfo($szCurl,CURLINFO_HTTP_CODE);
-                curl_close($szCurl);
+                $szSCCode = curl_getinfo($szCurl,CURLINFO_HTTP_CODE);
             }
             $szRetries = $szRetries + 1;
         }
-
+        
+        if($szSets->getRetrieveMethod()!=1) 
+        {
+            curl_close($szCurl);
+        }
+        
         unset($szSets);
 
         return $szXML;
