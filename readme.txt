@@ -9,7 +9,7 @@ Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.3 
 Tested up to:      3.9.1
-Stable tag:        2.0.5
+Stable tag:        2.0.6
 License:           GPL3
 
 Display Amazon.com customer reviews for products you specify in WordPress pages or posts, or as a widget.
@@ -238,7 +238,7 @@ This is the first version of the plugin.
 * Fixed a bug in the HTTP retries code that might hinder performance on some sites.
 
 = 2.0.5 =
-* Updated input sanitization to fix an issue that wsa preventing some UPC code reviews from being displayed.
+* Updated input sanitization to fix an issue that was preventing some UPC code reviews from being displayed.
 
 = 2.0.4 =
 * Updated query string to use Product Advertising API version 2013-08-01.
