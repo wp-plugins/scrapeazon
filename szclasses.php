@@ -85,8 +85,10 @@ class szRequirements
     {
         $szScreenID = get_current_screen()->id;
         $szUser = wp_get_current_user();
+        $szDisabled = 0;
+        $szRestoreNotices = (isset($_GET['restore_szNotices'])=='1') ? '1' : '0'; 
         
-        if ('1' == absint($_GET['restore_szNotices'])) 
+        if ('1' == absint($szRestoreNotices)) 
         {
             $this->szRestoreNotices();
         }
@@ -827,9 +829,9 @@ class szShortcode
     {
         $szItemType = $szASIN . '&IdType=ASIN';
         
-        if(isset($szEAN))  { $szItemType = sanitize_text_field($szEAN) . '&IdType=EAN&SearchIndex=All'; }
-        if(isset($szUPC))  { $szItemType = sanitize_text_field($szUPC) . '&IdType=UPC&SearchIndex=All'; }
-        if(isset($szISBN)) { $szItemType = sanitize_text_field($szISBN) . '&IdType=ISBN&SearchIndex=All'; }
+        if(! empty($szEAN))  { $szItemType = sanitize_text_field($szEAN) . '&IdType=EAN&SearchIndex=All'; }
+        if(! empty($szUPC))  { $szItemType = sanitize_text_field($szUPC) . '&IdType=UPC&SearchIndex=All'; }
+        if(! empty($szISBN)) { $szItemType = sanitize_text_field($szISBN) . '&IdType=ISBN&SearchIndex=All'; }
         
         return $szItemType;
     }
@@ -992,8 +994,17 @@ class szShortcode
                  'height'     => '',
                  'country'    => ''
 	           ), $szSCAtts) );
-	           
-        $szURL        = $this->szAmazonURL($szSCAtts["asin"],$szSCAtts["upc"],$szSCAtts["isbn"],$szSCAtts["ean"],$szSCAtts["country"]);
+	    
+	    $szSCKeys     = array('asin','upc','isbn','ean','border','width','height','country');
+	    foreach($szSCKeys as $szSCKey)
+	    {
+	       if (empty($szSCAtts[$szSCKey]))
+	       {
+	           $szSCAtts[$szSCKey] = '';
+	       }
+	    }
+	    
+        $szURL        = $this->szAmazonURL($szSCAtts['asin'],$szSCAtts['upc'],$szSCAtts['isbn'],$szSCAtts['ean'],$szSCAtts['country']);
         $szXML        = $this->szCallAmazonAPI($szURL);
         $szFrameURL   = $this->szRetrieveFrameURL($szXML);
         
