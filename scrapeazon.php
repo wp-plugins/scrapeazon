@@ -29,8 +29,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-error_reporting(E_ALL);
-
 // Load plugin files and configuration
 $szPlugin = plugin_basename(__FILE__); 
 $szPPath = plugin_dir_path(__FILE__);
