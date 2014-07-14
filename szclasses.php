@@ -31,7 +31,7 @@ class szRequirements
     public $szCurlDisabled = 'Client URL (cURL) is either <a href="http://us2.php.net/manual/en/curl.setup.php">not installed or not enabled</a> on your server. ScrapeAZon might not be able to retrieve reviews.';
     public $szFileGetEnabled = 'PHP fopen wrappers (file_get_contents) are enabled on your server. For security, <a href="http://www.php.net/manual/en/filesystem.configuration.php#ini.allow-url-fopen" target="_blank">disable fopen wrappers</a> and <a href="http://us2.php.net/manual/en/curl.setup.php">use cURL</a> instead.';
     public $szNoRetrieval = 'Neither client URL (cURL) nor fopen wrappers (file_get_contents) are enabled on your server. ScrapeAZon will not be able to retrieve reviews.';
-
+    
     public function szLoadLocal()
     {
         load_plugin_textdomain('scrapeazon',false,basename(dirname(__FILE__)).'/lang');
@@ -982,6 +982,19 @@ class szShortcode
         
         return $szOutput;
     }
+    
+    public function szTransientID()
+    {
+        $szTransient  = "szT-";
+        $szTransient  .= get_the_ID();
+        $szTransient  = (strlen($szTransient) > 40) ? substr($szTransient,0,40) : $szTransient;
+        return $szTransient;
+    }
+
+    public function szDeleteTransient()
+    {
+        delete_transient($this->szTransientID());
+    }
 
     public function szParseShortcode($szAtts)
     {
@@ -995,22 +1008,15 @@ class szShortcode
                  'height'     => '',
                  'country'    => ''
 	           ), $szAtts);
-	    
-        $szTransient  = "szT-" . $szSCAtts['asin'] . $szSCAtts['upc'] . $szSCAtts['isbn'] . $szSCAtts['ean'];
-        $szTransient  = (strlen($szTransient) > 40) ? substr($szTransient,0,40) : $szTransient;
-        
-        // Make sure transient gets cleaned up appropriately if necessary
-        add_action( 'save_post', delete_transient($szTransient) );
-        add_action( 'deleted_post', delete_transient($szTransient) );
-        
-        if (false === ($szOutput = get_transient($szTransient)))
+
+        if (false === ($szOutput = get_transient($this->szTransientID())))
         {
            $szURL        = $this->szAmazonURL($szSCAtts['asin'],$szSCAtts['upc'],$szSCAtts['isbn'],$szSCAtts['ean'],$szSCAtts['country']);
            $szXML        = $this->szCallAmazonAPI($szURL);
            $szFrameURL   = $this->szRetrieveFrameURL($szXML);
-           set_transient ($szTransient, $this->szShowIFrame($szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL), 60*60*12 );
+           set_transient ($this->szTransientID(), $this->szShowIFrame($szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL), 60*60*12 );
         }
-        return get_transient($szTransient);     
+        return get_transient($this->szTransientID());     
         //return $this->szShowIFrame($szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL);   
     }
 }
