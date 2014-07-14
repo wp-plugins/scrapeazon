@@ -985,10 +985,11 @@ class szShortcode
     
     public function szTransientID()
     {
-        $szTransient  = "szT-";
-        $szTransient  .= get_the_ID();
-        $szTransient  = (strlen($szTransient) > 40) ? substr($szTransient,0,40) : $szTransient;
-        return $szTransient;
+           $szScreen     = (is_admin()) ? get_current_screen()->id : '';      
+           $szTransient  = "szT-";
+           $szTransient  .= ($szScreen != 'admin_page_scrapeaz-tests') ? get_the_ID() : 'testpanel';
+           $szTransient  = (strlen($szTransient) > 40) ? substr($szTransient,0,40) : $szTransient;
+           return $szTransient;
     }
 
     public function szDeleteTransient()

@@ -177,7 +177,7 @@ If you want to use a different font, font size, or otherwise style the disclaime
 
 == Upgrade Notice ==
 
-= 2.0.9 =
+= 2.1.0 =
 Adds a caching mechanism for enhanced performance. Optimizes shortcode defaults and fixes some variable and array initialization issues.
 
 = 2.0.6 =
@@ -236,7 +236,7 @@ This is the first version of the plugin.
 
 == Changelog ==
 
-= 2.0.9 =
+= 2.1.0 =
 * Added a caching mechanism for enhanced performance.
 * Optimized shortcode defaults.
 * Fixed some variable and array initialization issues.
