@@ -915,6 +915,7 @@ class szShortcode
     
     public function szRetrieveFrameURL($szXML)
     {
+        $szIFrameURL='';
         $szResults = simplexml_load_string($szXML);
         if($szResults->Items->Item->CustomerReviews->HasReviews) 
         {
@@ -944,7 +945,7 @@ class szShortcode
     
     public function szMatchDigits($szParam)
     {
-       $szMatches = ((preg_match('/^\d*$/',$szParam))&&(! is_null($szParam))) ? true : false;
+       $szMatches = ((preg_match('/^\d*$/',$szParam))&&(! is_null($szParam))&&(! empty($szParam))) ? true : false;
        return $szMatches;
     }
 
@@ -982,9 +983,9 @@ class szShortcode
         return $szOutput;
     }
 
-    public function szParseShortcode($szSCAtts)
+    public function szParseShortcode($szAtts)
     {
-        extract( shortcode_atts( array(
+        $szSCAtts = shortcode_atts( array(
                  'asin'       => '',
                  'upc'        => '',
                  'isbn'       => '',
@@ -993,22 +994,24 @@ class szShortcode
                  'width'      => '',
                  'height'     => '',
                  'country'    => ''
-	           ), $szSCAtts) );
+	           ), $szAtts);
 	    
-	    $szSCKeys     = array('asin','upc','isbn','ean','border','width','height','country');
-	    foreach($szSCKeys as $szSCKey)
-	    {
-	       if (empty($szSCAtts[$szSCKey]))
-	       {
-	           $szSCAtts[$szSCKey] = '';
-	       }
-	    }
-	    
-        $szURL        = $this->szAmazonURL($szSCAtts['asin'],$szSCAtts['upc'],$szSCAtts['isbn'],$szSCAtts['ean'],$szSCAtts['country']);
-        $szXML        = $this->szCallAmazonAPI($szURL);
-        $szFrameURL   = $this->szRetrieveFrameURL($szXML);
+        $szTransient  = "szT-" . $szSCAtts['asin'] . $szSCAtts['upc'] . $szSCAtts['isbn'] . $szSCAtts['ean'];
+        $szTransient  = (strlen($szTransient) > 40) ? substr($szTransient,0,40) : $szTransient;
         
-        return $this->szShowIFrame($szSCAtts["border"],$szSCAtts["width"],$szSCAtts["height"],$szFrameURL);
+        // Make sure transient gets cleaned up appropriately if necessary
+        add_action( 'save_post', delete_transient($szTransient) );
+        add_action( 'deleted_post', delete_transient($szTransient) );
+        
+        if (false === ($szOutput = get_transient($szTransient)))
+        {
+           $szURL        = $this->szAmazonURL($szSCAtts['asin'],$szSCAtts['upc'],$szSCAtts['isbn'],$szSCAtts['ean'],$szSCAtts['country']);
+           $szXML        = $this->szCallAmazonAPI($szURL);
+           $szFrameURL   = $this->szRetrieveFrameURL($szXML);
+           set_transient ($szTransient, $this->szShowIFrame($szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL), 60*60*12 );
+        }
+        return get_transient($szTransient);     
+        //return $this->szShowIFrame($szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL);   
     }
 }
 

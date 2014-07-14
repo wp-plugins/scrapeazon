@@ -177,8 +177,8 @@ If you want to use a different font, font size, or otherwise style the disclaime
 
 == Upgrade Notice ==
 
-= 2.0.7 =
-Fixes some variable and array initialization issues.
+= 2.0.8 =
+Adds a caching mechanism for enhanced performance. Optimizes shortcode defaults and fixes some variable and array initialization issues.
 
 = 2.0.6 =
 Optimizes instantiation/destruction of the data retrieval function.
@@ -236,7 +236,9 @@ This is the first version of the plugin.
 
 == Changelog ==
 
-= 2.0.7 =
+= 2.0.8 =
+* Added a caching mechanism for enhanced performance.
+* Optimized shortcode defaults.
 * Fixed some variable and array initialization issues.
 
 = 2.0.6 =
