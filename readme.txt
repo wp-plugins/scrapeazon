@@ -7,7 +7,7 @@ Tags:              amazon.com,amazon,customer,reviews,asin,isbn
 Author URI:        http://www.timetides.com
 Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
-Requires at least: 3.3 
+Requires at least: 3.5
 Tested up to:      3.9.1
 Stable tag:        2.0.6
 License:           GPL3
@@ -178,7 +178,7 @@ If you want to use a different font, font size, or otherwise style the disclaime
 == Upgrade Notice ==
 
 = 2.1.0 =
-Adds a caching mechanism for enhanced performance. Optimizes shortcode defaults and fixes some variable and array initialization issues.
+Adds a caching mechanism for enhanced performance along with other new features and fixes. Optimizes shortcode defaults and fixes some variable and array initialization issues.
 
 = 2.0.6 =
 Optimizes instantiation/destruction of the data retrieval function.
@@ -240,6 +240,10 @@ This is the first version of the plugin.
 * Added a caching mechanism for enhanced performance.
 * Optimized shortcode defaults.
 * Fixed some variable and array initialization issues.
+* Added a new shortcode parameter (url) that disables display of the iframe and returns only the iframe source URL.
+* Added a new shortcode parameter (noblanks) to disable the iframe when no reviews exist.
+* Updated context-sensitive help.
+* Updated POT file.
 
 = 2.0.6 =
 * Updated data retrieval function to optimize instantiation/destruction.

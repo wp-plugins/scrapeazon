@@ -30,6 +30,8 @@ if(!defined('ABSPATH')&& !defined('WP_UNINSTALL_PLUGIN'))
     exit();
 }
 
+global $wpdb;
+
 $szUser = wp_get_current_user();
 
 // Remove settings stored in database
@@ -49,4 +51,12 @@ $szDelete_all = true;
 delete_metadata( $szMeta_type, $szUser_id, 'scrapeazon_ignore_FileGetEnabled', $szMeta_value, $szDelete_all );
 delete_metadata( $szMeta_type, $szUser_id, 'scrapeazon_ignore_CurlEnabled', $szMeta_value, $szDelete_all );
 delete_metadata( $szMeta_type, $szUser_id, 'scrapeazon_ignore_CurlDisabled', $szMeta_value, $szDelete_all );
+
+// Remove ScrapeAZon transients
+$dbquery = 'SELECT option_name FROM ' . $wpdb->options . ' WHERE option_name LIKE \'_transient_timeout_szT-%\';';
+$cleandb = $wpdb->get_col($dbquery);
+foreach ($cleandb as $transient) {
+    $key = str_replace('_transient_timeout_','',$transient);
+    delete_transient($key);
+}
 ?>

@@ -27,10 +27,10 @@
 
 class szRequirements
 {
-    public $szCurlEnabled = 'Client URL (cURL) is enabled on your server. ScrapeAZon can use it to retrieve reviews.';
-    public $szCurlDisabled = 'Client URL (cURL) is either <a href="http://us2.php.net/manual/en/curl.setup.php">not installed or not enabled</a> on your server. ScrapeAZon might not be able to retrieve reviews.';
-    public $szFileGetEnabled = 'PHP fopen wrappers (file_get_contents) are enabled on your server. For security, <a href="http://www.php.net/manual/en/filesystem.configuration.php#ini.allow-url-fopen" target="_blank">disable fopen wrappers</a> and <a href="http://us2.php.net/manual/en/curl.setup.php">use cURL</a> instead.';
-    public $szNoRetrieval = 'Neither client URL (cURL) nor fopen wrappers (file_get_contents) are enabled on your server. ScrapeAZon will not be able to retrieve reviews.';
+    public $szCurlEnabled     = 'Client URL (cURL) is enabled on your server. ScrapeAZon can use it to retrieve reviews.';
+    public $szCurlDisabled    = 'Client URL (cURL) is either <a href="http://us2.php.net/manual/en/curl.setup.php">not installed or not enabled</a> on your server. ScrapeAZon might not be able to retrieve reviews.';
+    public $szFileGetEnabled  = 'PHP fopen wrappers (file_get_contents) are enabled on your server. For security, <a href="http://www.php.net/manual/en/filesystem.configuration.php#ini.allow-url-fopen" target="_blank">disable fopen wrappers</a> and <a href="http://us2.php.net/manual/en/curl.setup.php">use cURL</a> instead.';
+    public $szNoRetrieval     = 'Neither client URL (cURL) nor fopen wrappers (file_get_contents) are enabled on your server. ScrapeAZon will not be able to retrieve reviews.';
     
     public function szLoadLocal()
     {
@@ -129,8 +129,21 @@ class szWPOptions
     public $szCountryId      = '';
     public $szResponsive     = '';
     public $szCountries      = array("--","AT","CA","CN","DE","ES","FR","IN","IT","JP","UK","US");
-    public $szOptionsPage    = 'scrapeaz-options';   
-    
+    public $szCacheExpire    = 12;
+    public $szClearCache     = 0;
+    public $szOptionsPage    = 'scrapeaz-options';
+
+    public function szCleanCache()
+    {
+        global $wpdb;
+        $szDBquery = 'SELECT option_name FROM ' . $wpdb->options . ' WHERE option_name LIKE \'_transient_timeout_szT-%\';';
+        $szCleanDB = $wpdb->get_col($szDBquery);
+        foreach ($szCleanDB as $szTransient) {
+            $szDBKey = str_replace('_transient_timeout_','',$szTransient);
+            delete_transient($szDBKey);
+        }
+    }
+
     public function szRequireStyles()
     {
         // Load responsive stylesheet if required
@@ -229,6 +242,31 @@ class szWPOptions
         $this->szResponsive = get_option('scrape-responsive','0');
         return absint($this->szResponsive);
     }
+    
+    public function setCacheExpire($newval)
+    {
+        $this->szCacheExpire = (! empty($newval)) ? trim($newval) : 12;
+        return absint($this->szCacheExpire);
+    }
+    
+    public function getCacheExpire()
+    {
+        $this->szCacheExpire = get_option('scrape-perform','12');
+        return absint($this->szCacheExpire);
+    }
+    
+    public function setClearCache($newval)
+    {
+        $this->szClearCache = (! empty($newval)) ? trim($newval) : 0;
+        return absint($this->szClearCache);
+    }
+    
+    public function getClearCache()
+    {
+        $szClear = get_option('scrape-clearcache','0');
+        update_option('scrape-clearcache','0');
+        return($szClear);
+    }
        
     public function szOptionsCallback()
     {
@@ -252,6 +290,15 @@ class szWPOptions
         printf($szFormat,$sz1,$sz2,$sz3,$sz4);
     }
     
+    public function szPerformCallback()
+    {
+        $sz1      = __('WARNING!');
+        $sz2      = __('You should make a backup of your WordPress database before attempting to use the <strong>Clear Cache</strong> option. The <strong>Clear Cache</strong> option attempts to delete data directly from the WordPress database and is therefore dangerous. Use the <strong>Clear Cache</strong> option with caution.','scrapeazon');
+        $szFormat = '<p><h2>%s</h2></p><p>%s</p>';
+
+        printf($szFormat,$sz1,$sz2);
+    }
+    
     public function szUsageCallback()
     {
         echo '<p><b>' . __('Shortcode','scrapeazon') .'</b>: <code>[scrapeazon asin="<i>amazon.com-product-number</i>"]</code></p>';
@@ -272,15 +319,19 @@ class szWPOptions
         register_setting('scrapeazon-options','scrape-getmethod',array(&$this, 'setRetrieveMethod'));
         register_setting('scrapeazon-options','scrape-getcountry',array(&$this, 'setCountryID'));
         register_setting('scrapeazon-options','scrape-responsive',array(&$this, 'setResponsive'));
+        register_setting('scrapeazon-perform','scrape-perform',array(&$this, 'setCacheExpire'));
+        register_setting('scrapeazon-perform','scrape-clearcache',array(&$this, 'setClearCache'));
     }
        
     public function szAddAdminPage() 
     {
         $szOptionsPage = add_submenu_page('options-general.php','ScrapeAZon','ScrapeAZon','manage_options','scrapeaz-options',array(&$this, 'szGetOptionsScreen'));
         $szTestingPage = add_submenu_page('scrapeaz-options','Tests','Tests','manage_options','scrapeaz-tests',array(&$this, 'szGetOptionsScreen'));
+        $szCachingPage = add_submenu_page('scrapeaz-perform','Performance','Performance','manage_options','scrapeaz-perform',array(&$this, 'szGetOptionsScreen'));
         $szUsingPage   = add_submenu_page('scrapeaz-options','Usage','Usage','manage_options','scrapeaz-usages',array(&$this, 'szGetOptionsScreen'));    
         add_action('load-' . $szOptionsPage, array(&$this, 'szAddHelp'));
         add_action('load-' . $szTestingPage, array(&$this, 'szAddHelp'));
+        add_action('load-' . $szCachingPage, array(&$this, 'szAddHelp'));
         add_action('load-' . $szUsingPage, array(&$this, 'szAddHelp'));       
     }
  
@@ -294,6 +345,9 @@ class szWPOptions
             case 'Tests':
                  $_GET['tab'] = 'scrapeazon_test_section';
                  break;
+            case 'Performance':
+                 $_GET['tab'] = 'scrapeazon_perform_section';
+                 break;
             case 'Usage':
                  $_GET['tab'] = 'scrapeazon_usage_section';
                  break;
@@ -306,12 +360,14 @@ class szWPOptions
         echo $active_tab == 'scrapeazon_retrieval_section' ? 'nav-tab-active' : '';
         echo '">ScrapeAZon</a><a href="' . admin_url() .'admin.php?page=scrapeaz-tests&tab=scrapeazon_test_section" class="nav-tab ';
         echo $active_tab == 'scrapeazon_test_section' ? 'nav-tab-active' : '';
-        echo '">Tests</a><a href="' . admin_url() .'admin.php?page=scrapeaz-usages&tab=scrapeazon_usage_section" class="nav-tab ';
+        echo '">Tests</a><a href="' . admin_url() .'admin.php?page=scrapeaz-perform&tab=scrapeazon_perform_section" class="nav-tab ';
+        echo $active_tab == 'scrapeazon_perform_section' ? 'nav-tab-active' : '';
+        echo '">Performance</a><a href="' . admin_url() .'admin.php?page=scrapeaz-usages&tab=scrapeazon_usage_section" class="nav-tab ';
         echo $active_tab == 'scrapeazon_usage_section' ? 'nav-tab-active' : '';
         echo '">Usage</a></h2>';
         
         // Settings form
-        echo '<form method="post" action="options.php">';
+
 
         add_settings_section(
             'scrapeazon_retrieval_section',
@@ -326,6 +382,13 @@ class szWPOptions
             array(&$this, 'szTestCallback'),
             'scrapeaz-tests'
         );
+        
+        add_settings_section(
+            'scrapeazon_perform_section',
+            __('ScrapeAZon Performance','scrapeazon'),
+            array(&$this, 'szPerformCallback'),
+            'scrapeaz-perform'
+        );
                
         add_settings_section(
             'scrapeazon_usage_section',
@@ -335,23 +398,33 @@ class szWPOptions
         );
         
         // Create settings fields
-        $this->getOptionsForm();
-        
-        settings_fields('scrapeazon-options');
+        $this->getOptionsForm();   
         switch($active_tab)
         {
             case 'scrapeazon_retrieval_section':
+                 echo '<form method="post" action="options.php">';
+                 settings_fields('scrapeazon-options');
                  do_settings_sections('scrapeaz-options');
                  echo get_submit_button();
+                 echo '</form>';
                  break;
             case 'scrapeazon_test_section':
+                 settings_fields('scrapeazon-tests');
                  do_settings_sections('scrapeaz-tests');
                  break;
+            case 'scrapeazon_perform_section':
+                 echo '<form method="post" action="options.php">';
+                 settings_fields('scrapeazon-perform');
+                 do_settings_sections('scrapeaz-perform');
+                 echo get_submit_button();
+                 echo '</form>';
+                 break;
             case 'scrapeazon_usage_section':
+                 settings_fields('scrapeazon-usages');
                  do_settings_sections('scrapeaz-usages');
                  break;
         }
-        echo '</form>';
+
     }
     
     public function szAWSKeyIDField($args)
@@ -410,6 +483,25 @@ class szWPOptions
 	    echo $szField;
     }
     
+    public function szCacheExpireField($args)
+    {
+	    $szField = '<select id="scrape-perform" name="scrape-perform">';
+	    for($x=1;$x<24;$x++)
+	    {
+	        $szFieldSelected = ($this->getCacheExpire()==$x) ? ' selected="selected"' : '';
+	        $szField .= '<option value="' .
+	                    absint($x) .
+	                    '"' .
+	                    sanitize_text_field($szFieldSelected) .
+	                    '>' .
+	                    absint($x) .
+	                    '</option>';
+	    }
+	    $szField .= '</select> Hours<br />';
+        $szField .= '<label for="scrape-perform"> '  . sanitize_text_field($args[0]) . '</label>';
+	    echo $szField;
+    }
+    
     public function szResponsiveField($args)
     {
         $szField  = '<input type="checkbox" name="scrape-responsive" id="scrape-responsive" value="1" ' .
@@ -429,6 +521,13 @@ class szWPOptions
     public function szAWSTestField()
     {
         echo do_shortcode('[scrapeazon asin="B00HPCF5VU" width="500" height="400" border="false" country="us"]');
+    }
+    
+    public function szClearCacheField($args)
+    {
+        $szField  = '<input type="checkbox" name="scrape-clearcache" id="scrape-clearcache" value="1" /><br />';
+        $szField .= '<label for="scrape-clearcache"> '  . sanitize_text_field($args[0]) . '</label>';
+        echo $szField;
     }
     
     public function getOptionsForm()
@@ -520,6 +619,28 @@ class szWPOptions
                 __('ScrapeAZon Test Frame.','scrapeazon')
             )
         );
+        
+        add_settings_field(
+            'scrape-perform',
+            __('Cache Expires In','scrapeazon'),
+            array(&$this, 'szCacheExpireField'),
+            'scrapeaz-perform',
+            'scrapeazon_perform_section',
+            array(
+                __('The number of hours that should pass before cached Amazon API calls expire. Cannot be more than 23 hours. Default is 12.','scrapeazon')
+            )
+        );
+        
+        add_settings_field(
+            'scrape-clear-cache-field',
+            __('Clear Cache','scrapeazon'),
+            array(&$this, 'szClearCacheField'),
+            'scrapeaz-perform',
+            'scrapeazon_perform_section',
+            array(
+                __('Clears ScrapeAZon transient data.','scrapeazon')
+            )
+        );
     }
     
     public function szAddHelp($szContextHelp)
@@ -584,6 +705,11 @@ class szWPOptions
                           __('disables the border that some browsers automatically add to iframes.','scrapeazon') .
                           '</li><li><code>country</code>: ' .
                           __('Overrides the global country setting on the Settings page. Use the two-character country code for the Amazon International site from which you want to obtain reviews.','scrapeazon') .
+                          '</li><li><code>url</code>: ' .
+                          __('When set to ','scrapeazon') .
+                          '<code>true</code>, ' .
+                          __('returns ONLY the iFrame source URL, not the iFrame itself. This can be useful if you want more advanced control over the iframe element attributes because you can include the shortcode within the SRC attribute of a manually coded iframe tag. Default value is','scrapeazon') .
+                          '<code>false</code>' . 
                           '</li></ul></p>';
         $szTestsUse     = '<p>' .
                           __('After you have saved your ScrapeAZon Settings by clicking the ','scrapeazon') .
@@ -597,6 +723,16 @@ class szWPOptions
                           __('tab to view some sample reviews frames based on your settings.','scrapeazon') .
                           '</p><p>' . 
                           __('If you do not see sample Amazon output on this tab, your ScrapeAZon settings might be incorrect.','scrapeazon') .
+                          '</p>';
+        $szPerfUse      = '<p>' .
+                          __('By default, ScrapeAZon caches Amazon API calls for 12 hours to enhance site performance. ','scrapeazon') .
+                          __('You can adjust the amount of time ScrapeAZon caches this data by adjusting the','scrapeazon') .
+                          '<strong>' .
+                          __('Cache Expires In','scrapeazon') .
+                          '</strong> ' .
+                          __('value to the number of hours you want the cached data to persist.','scrapeazon') .
+                          '</p><p>' . 
+                          __('You can also choose to clear the existing cached data from the WordPress database. However, you should always back up your WordPress database before attempting to delete data in bulk.','scrapeazon') .
                           '</p>';
     
         $szScreen   = get_current_screen();           
@@ -620,7 +756,22 @@ class szWPOptions
             'title'   => __('Tests Tab','scrapeazon'),
             'content' => $szTestsUse,
         ));
+        $szScreen->add_help_tab(array(
+            'id'      => 'szPerfUseTab',
+            'title'   => __('Performance Tab','scrapeazon'),
+            'content' => $szPerfUse,
+        ));
         return $szContextHelp;
+    }
+    
+    public function szShowNPNotices()
+    {
+        if($this->getClearCache()=='1') 
+        {
+            add_settings_error( 'scrapeazon-notices', 'scrape-cache-cleared', __('Cache cleared', 'scrapeazon'), 'updated' );
+            $this->szCleanCache();
+        }
+        settings_errors('scrapeazon-notices');
     }
 }
 
@@ -755,7 +906,7 @@ class szWidget extends WP_Widget {
 }
 
 class szShortcode
-{
+{   
     public function szGetDomain($szCountryId)
     {
         switch ($szCountryId) {
@@ -913,10 +1064,10 @@ class szShortcode
         return $szXML;
     }
     
-    public function szRetrieveFrameURL($szXML)
+    public function szRetrieveFrameURL($szResults)
     {
         $szIFrameURL='';
-        $szResults = simplexml_load_string($szXML);
+        //$szResults = simplexml_load_string($szXML);
         if($szResults->Items->Item->CustomerReviews->HasReviews) 
         {
             $szIFrameURL = str_replace('http://',$this->szIsSSL(),$szResults->Items->Item->CustomerReviews->IFrameURL);
@@ -949,38 +1100,46 @@ class szShortcode
        return $szMatches;
     }
 
-    public function szShowIFrame($szBorder,$szWidth,$szHeight,$szFrameURL)
+    public function szShowIFrame($szNoBlanks,$szBorder,$szWidth,$szHeight,$szFrameURL,$szHasReviews)
     {
-        $szSets      = new szWPOptions();
-        $szRespBool  = absint($szSets->getResponsive());
-        
         $szOutput  = '';
-        if($szRespBool) 
+        if((false===(strtolower($szHasReviews)=='true'))&&(true===(strtolower($szNoBlanks)=='true')))
         {
-            $szOutput .= '<div id="scrapeazon-wrapper" class="scrapeazon-responsive"';
-            if (($this->szMatchDigits($szWidth)) || ($this->szMatchDigits($szHeight)))
-            { 
-                $szOutput .= ' style="';
-                $szOutput .= ($this->szMatchDigits($szWidth)) ? 'width:' . absint($szWidth) . 'px;' : '';
-                $szOutput .= ($this->szMatchDigits($szHeight)) ? 'height:' . absint($szHeight) . 'px;' : '';
-                $szOutput .= '"';
+            $szOutput = '';
+        } else {
+            $szSets      = new szWPOptions();
+            $szRespBool  = absint($szSets->getResponsive());
+            if($szRespBool) 
+            {
+                $szOutput .= '<div id="scrapeazon-wrapper" class="scrapeazon-responsive"';
+                if (($this->szMatchDigits($szWidth)) || ($this->szMatchDigits($szHeight)))
+                { 
+                    $szOutput .= ' style="';
+                    $szOutput .= ($this->szMatchDigits($szWidth)) ? 'width:' . absint($szWidth) . 'px;' : '';
+                    $szOutput .= ($this->szMatchDigits($szHeight)) ? 'height:' . absint($szHeight) . 'px;' : '';
+                    $szOutput .= '"';
+                }
+                 $szOutput .= '>';
             }
-            $szOutput .= '>';
+        
+            $szOutput .= '<iframe id="scrapeazon-iframe" class="scrapeazon-reviews" src="' . 
+                         esc_url($szFrameURL) .
+                         '" ';
+            $szOutput .= (strtolower($szBorder)=='true') ? 'frameborder="1" ' : 'frameborder="0" ';
+            $szOutput .= ((!$szRespBool)&&($this->szMatchDigits($szWidth))) ? 'width="' . absint($szWidth) . '" ' : '';
+            $szOutput .= ((!$szRespBool)&&($this->szMatchDigits($szHeight))) ? 'height="' . absint($szHeight) . '" ' : '';
+            $szOutput .= '></iframe>';
+            $szOutput .= ($szRespBool) ? '</div>' : '';
+            $szOutput .= $this->szShowDisclaimer($szWidth,$szRespBool);
+        
+            unset($szSets);
         }
-        
-        $szOutput .= '<iframe id="scrapeazon-iframe" class="scrapeazon-reviews" src="' . 
-                      $szFrameURL .
-                      '" ';
-        $szOutput .= (strtolower($szBorder)=='true') ? 'frameborder="1" ' : 'frameborder="0" ';
-        $szOutput .= ((!$szRespBool)&&($this->szMatchDigits($szWidth))) ? 'width="' . absint($szWidth) . '" ' : '';
-        $szOutput .= ((!$szRespBool)&&($this->szMatchDigits($szHeight))) ? 'height="' . absint($szHeight) . '" ' : '';
-        $szOutput .= '></iframe>';
-        $szOutput .= ($szRespBool) ? '</div>' : '';
-        $szOutput .= $this->szShowDisclaimer($szWidth,$szRespBool);
-        
-        unset($szSets);
-        
         return $szOutput;
+    }
+    
+    public function szShowURL($szFrameURL)
+    {
+        return esc_url($szFrameURL);
     }
     
     public function szTransientID()
@@ -999,26 +1158,52 @@ class szShortcode
 
     public function szParseShortcode($szAtts)
     {
+        // When does our cache expire?
+        $szSets            = new szWPOptions();
+        $szTransientExpire = $szSets->getCacheExpire();
+        unset($szSets);
+        
         $szSCAtts = shortcode_atts( array(
                  'asin'       => '',
                  'upc'        => '',
                  'isbn'       => '',
                  'ean'        => '',
-                 'border'     => '',
-                 'width'      => '',
-                 'height'     => '',
-                 'country'    => ''
+                 'border'     => 'false',
+                 'width'      => '500',
+                 'height'     => '400',
+                 'country'    => 'us',
+                 'url'        => 'false',
+                 'noblanks'   => 'false'
 	           ), $szAtts);
-
-        if (false === ($szOutput = get_transient($this->szTransientID())))
+	           
+	    $szTransientID = $this->szTransientID();
+	           
+        if ((false === ($szOutput = get_transient($szTransientID)))||($szTransientID=='szT-testpanel'))
         {
-           $szURL        = $this->szAmazonURL($szSCAtts['asin'],$szSCAtts['upc'],$szSCAtts['isbn'],$szSCAtts['ean'],$szSCAtts['country']);
-           $szXML        = $this->szCallAmazonAPI($szURL);
-           $szFrameURL   = $this->szRetrieveFrameURL($szXML);
-           set_transient ($this->szTransientID(), $this->szShowIFrame($szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL), 60*60*12 );
+            $szURL        = $this->szAmazonURL($szSCAtts['asin'],$szSCAtts['upc'],$szSCAtts['isbn'],$szSCAtts['ean'],$szSCAtts['country']);
+            $szXML        = $this->szCallAmazonAPI($szURL);
+            $szResults    = simplexml_load_string($szXML);
+            $szHasReviews = $szResults->Items->Item->CustomerReviews->HasReviews;
+
+            $szFrameURL   = $this->szRetrieveFrameURL($szResults);
+                      
+            if(true === ($szSCAtts['url']==strtolower('true'))) 
+            {
+                set_transient ($szTransientID, $this->szShowURL($szFrameURL), $szTransientExpire * HOUR_IN_SECONDS);
+                return get_transient($szTransientID);
+            } else {
+                if($szTransientID=='szT-testpanel')
+                {
+                    return $this->szShowIFrame($szSCAtts['noblanks'],$szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL,$szHasReviews);
+                } else {
+                    set_transient ($szTransientID, $this->szShowIFrame($szSCAtts['noblanks'],$szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL,$szHasReviews), $szTransientExpire * HOUR_IN_SECONDS );
+                    return get_transient($szTransientID);
+                }
+            }
+
+        } else {
+            return get_transient($szTransientID);
         }
-        return get_transient($this->szTransientID());     
-        //return $this->szShowIFrame($szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL);   
     }
 }
 
