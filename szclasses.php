@@ -705,6 +705,10 @@ class szWPOptions
                           __('disables the border that some browsers automatically add to iframes.','scrapeazon') .
                           '</li><li><code>country</code>: ' .
                           __('Overrides the global country setting on the Settings page. Use the two-character country code for the Amazon International site from which you want to obtain reviews.','scrapeazon') .
+                          '</li><li><code>noblanks</code>: ' .
+                          __('When set to ','scrapeazon') .
+                          '<code>true</code> ' .
+                          __('prevents ScrapeAZon from displaying an iframe for products that have no reviews. By default, ScrapeAZon displays an iframe that contains Amazon\'s "Be the first to review this item" page.','scrapeazon') .
                           '</li><li><code>url</code>: ' .
                           __('When set to ','scrapeazon') .
                           '<code>true</code>, ' .
@@ -733,6 +737,8 @@ class szWPOptions
                           __('value to the number of hours you want the cached data to persist.','scrapeazon') .
                           '</p><p>' . 
                           __('You can also choose to clear the existing cached data from the WordPress database. However, you should always back up your WordPress database before attempting to delete data in bulk.','scrapeazon') .
+                          '</p><p>' .
+                          __('Please be aware that if you are using a caching plugin, such as W3 Total Cache, with object caching enabled, the Clear Cache option will not do anything. You will need to clear the object cache by using the caching plugin\'s clear cache feature.','scrapeazon') .
                           '</p>';
     
         $szScreen   = get_current_screen();           
@@ -1160,50 +1166,55 @@ class szShortcode
     {
         // When does our cache expire?
         $szSets            = new szWPOptions();
-        $szTransientExpire = $szSets->getCacheExpire();
-        unset($szSets);
-        
-        $szSCAtts = shortcode_atts( array(
-                 'asin'       => '',
-                 'upc'        => '',
-                 'isbn'       => '',
-                 'ean'        => '',
-                 'border'     => 'false',
-                 'width'      => '500',
-                 'height'     => '400',
-                 'country'    => 'us',
-                 'url'        => 'false',
-                 'noblanks'   => 'false'
-	           ), $szAtts);
-	           
-	    $szTransientID = $this->szTransientID();
-	           
-        if ((false === ($szOutput = get_transient($szTransientID)))||($szTransientID=='szT-testpanel'))
+        if((! $szSets->getAccessKey())||(! $szSets->getSecretKey())||(! $szSets->getAssocID()))
         {
-            $szURL        = $this->szAmazonURL($szSCAtts['asin'],$szSCAtts['upc'],$szSCAtts['isbn'],$szSCAtts['ean'],$szSCAtts['country']);
-            $szXML        = $this->szCallAmazonAPI($szURL);
-            $szResults    = simplexml_load_string($szXML);
-            $szHasReviews = $szResults->Items->Item->CustomerReviews->HasReviews;
-
-            $szFrameURL   = $this->szRetrieveFrameURL($szResults);
-                      
-            if(true === ($szSCAtts['url']==strtolower('true'))) 
-            {
-                set_transient ($szTransientID, $this->szShowURL($szFrameURL), $szTransientExpire * HOUR_IN_SECONDS);
-                return get_transient($szTransientID);
-            } else {
-                if($szTransientID=='szT-testpanel')
-                {
-                    return $this->szShowIFrame($szSCAtts['noblanks'],$szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL,$szHasReviews);
-                } else {
-                    set_transient ($szTransientID, $this->szShowIFrame($szSCAtts['noblanks'],$szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL,$szHasReviews), $szTransientExpire * HOUR_IN_SECONDS );
-                    return get_transient($szTransientID);
-                }
-            }
-
+             echo '';
         } else {
-            return get_transient($szTransientID);
+            $szTransientExpire = $szSets->getCacheExpire();
+        
+            $szSCAtts = shortcode_atts( array(
+                     'asin'       => '',
+                     'upc'        => '',
+                     'isbn'       => '',
+                     'ean'        => '',
+                     'border'     => 'false',
+                     'width'      => '',
+                     'height'     => '',
+                     'country'    => 'us',
+                     'url'        => 'false',
+                     'noblanks'   => 'false'
+	               ), $szAtts);
+	           
+	        $szTransientID = $this->szTransientID();
+       
+            if ((false === ($szOutput = get_transient($szTransientID)))||($szTransientID=='szT-testpanel'))
+            {
+                $szURL        = $this->szAmazonURL($szSCAtts['asin'],$szSCAtts['upc'],$szSCAtts['isbn'],$szSCAtts['ean'],$szSCAtts['country']);
+                $szXML        = $this->szCallAmazonAPI($szURL);
+                $szResults    = simplexml_load_string($szXML);
+                $szHasReviews = $szResults->Items->Item->CustomerReviews->HasReviews;
+
+                $szFrameURL   = $this->szRetrieveFrameURL($szResults);
+                      
+                if(true === ($szSCAtts['url']==strtolower('true'))) 
+                {
+                    set_transient ($szTransientID, $this->szShowURL($szFrameURL), $szTransientExpire * HOUR_IN_SECONDS);
+                    return get_transient($szTransientID);
+                } else {
+                    if($szTransientID=='szT-testpanel')
+                    {
+                        return $this->szShowIFrame($szSCAtts['noblanks'],$szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL,$szHasReviews);
+                    } else {
+                        set_transient ($szTransientID, $this->szShowIFrame($szSCAtts['noblanks'],$szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL,$szHasReviews), $szTransientExpire * HOUR_IN_SECONDS );
+                        return get_transient($szTransientID);
+                    }
+                }
+
+            } else {
+                return get_transient($szTransientID);
+            }
         }
+        unset($szSets);
     }
 }
 
