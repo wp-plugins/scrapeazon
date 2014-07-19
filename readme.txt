@@ -36,7 +36,7 @@ This section describes how to install the plugin and get it working.
 3. Upload the ScrapeAZon folder to the '/wp-content/plugins/' directory
 4. Activate ScrapeAZon by using the 'Plugins' menu
 5. Click ScrapeAZon from the Wordpress Settings menu and configure the appropriate settings
-6. Add the [scrapeazon asin="<amazon.com product number>"] shortcode, where <amazon.com product number> is the ASIN or ISBN-10 of the product that contains the reviews you want to display, to the pages or posts you want. For example, if you wanted to display reviews for a product with the ASIN of 012345689, you would issue the shortcode [scrapeazon asin="0123456789"]
+6. Add the <code>[scrapeazon asin="<amazon.com product number>"]</code> shortcode, where <amazon.com product number> is the ASIN or ISBN-10 of the product that contains the reviews you want to display, to the pages or posts you want. For example, if you wanted to display reviews for a product with the ASIN of 012345689, you would issue the shortcode <code>[scrapeazon asin="0123456789"]</code>
 
 == Frequently Asked Questions ==
 
@@ -62,13 +62,13 @@ An ASIN is an Amazon.com product identification number. ScrapeAZon uses this ide
 
 Yes, as of ScrapeAZon 2.0.1, you can replace the asin parameter in a shortcode with any of the following parameters:
 
-* isbn
-* upc
-* ean
+* <code>isbn</code>
+* <code>upc</code>
+* <code>ean</code>
 
 The isbn parameter enables you to retrieve reviews for a book or an ebook by using an International Standard Book Number (ISBN). For example, you could use an ISBN retrieve reviews for Stephen King's 11/22/63 by using the following shortcode:
 
-[scrapeazon isbn="9781451627299"]
+<code>[scrapeazon isbn="9781451627299"]</code>
 
 The upc parameter enables you to retrieve reviews for a product based on that product's Universal Product Code (UPC).
 
@@ -142,18 +142,18 @@ There are several ways that you can style the scrapeazon-reviews iframe: by edit
 
 To style the iframe in your theme's stylesheet, add classes named scrapeazon-reviews and scrapeazon-api to your stylesheet, then add the width, height, border, and other parameters you want to style to those classes. For example, copy and paste the following into your stylesheet to make the iframe a 540x540 pixel square with no border:
 
-.scrapeazon-reviews {
+<code>.scrapeazon-reviews {
    width: 540px;
    height: 540px;
    border: none;
 }
 .scrapeazon-api {
    width: 540px;
-}
+}</code>
 
 To style the iframe by using the shortcode, add width, height, and border as parameters to the shortcode. For example, to accomplish the same formatting as above in shortcode format, use the following shortcode:
 
-[scrapeazon asin="<your asin>" width="540" height="540" border="false"]
+<code>[scrapeazon asin="<your asin>" width="540" height="540" border="false"]</code>
 
 To style the iframe by using the built-in responsive style sheet (if your site has a responsive design/theme), select the "Use Responsive Style" checkbox on the ScrapeAZon Settings page.
 
@@ -169,11 +169,25 @@ If you know how to edit your theme's CSS, you probably can. However, doing so is
 
 If you want to use a different font, font size, or otherwise style the disclaimer, add a class named scrape-api to your theme's CSS file and make the changes within that class. For example, if you'd like the disclaimer to be in 9-point Helvetica and 540 pixels wide, you could add the following class to your CSS:
 
-.scrapeazon-api {
+<code>.scrapeazon-api {
    width: 540px;
    font-family: Helvetica;
    font-size: 9pt;
-}
+}</code>
+
+= What if I want to use iframe element attributes that are not supported by the shortcode? =
+
+If you want more advanced control over the iframe, you can opt to issue the shortcode with the <code>url="true"</code> parameter. When set to "true," the <code>url</code> parameter prevents the plugin from displaying the iframe and instead simply returns the Amazon URL that should be included in the iframe's SRC attribute.
+
+If you choose to issue the shortcode this way, you should do so between an iframe SRC attributes quotation marks in your page or post, as shown in the following example:
+
+<code><iframe src="[scrapeazon isbn="9781451627299"  url="true"]"></iframe></code>
+
+= Can I prevent the display of the iframe if there are no reviews yet for my products? =
+
+Yes. By default, if the Amazon API returns no reviews for your product, ScrapeAZon will display the iframe that contains Amazon's "Be the first to review this item" page for the product you specified. If you want to prevent the display of that page, issue the shortcode with the <code>noblanks</code> parameter set to <code>true</code>, as shown in the following example:
+
+<code>[scrapeazon isbn="9781451627299" noblanks="true"]</code> 
 
 == Upgrade Notice ==
 
@@ -237,13 +251,14 @@ This is the first version of the plugin.
 == Changelog ==
 
 = 2.1.0 =
-* Added a caching mechanism for enhanced performance.
+* Added a caching mechanism and related settings for faster performance.
 * Optimized shortcode defaults.
 * Fixed some variable and array initialization issues.
 * Added a new shortcode parameter (url) that disables display of the iframe and returns only the iframe source URL.
 * Added a new shortcode parameter (noblanks) to disable the iframe when no reviews exist.
 * Updated context-sensitive help.
 * Updated POT file.
+* Updated readme and FAQ.
 
 = 2.0.6 =
 * Updated data retrieval function to optimize instantiation/destruction.
