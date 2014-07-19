@@ -818,7 +818,7 @@ class szWidget extends WP_Widget {
 		    {
 		        $szSCode .= ' border="' . strip_tags($instance[ 'border' ]) . '"';
 		    }
-		    $szSCode .= ']';
+		    $szSCode .= ' iswidget="' . $instance['asin'] . $instance['height'] . $instance['width'] . '"]';
 		    echo do_shortcode($szSCode);
 		}
 		echo $args['after_widget'];
@@ -1148,22 +1148,22 @@ class szShortcode
         return esc_url($szFrameURL);
     }
     
-    public function szTransientID()
+    public function szTransientID($szSCAtts)
     {
-           $szScreen     = (is_admin()) ? get_current_screen()->id : '';      
+           $szScreen     = (is_admin()) ? get_current_screen()->id : '';
            $szTransient  = "szT-";
-           $szTransient  .= ($szScreen != 'admin_page_scrapeaz-tests') ? get_the_ID() : 'testpanel';
-           $szTransient  = (strlen($szTransient) > 40) ? substr($szTransient,0,40) : $szTransient;
+           if ($szScreen != 'admin_page_scrapeaz-tests')
+           {
+               $szTransient .= ($szSCAtts["iswidget"]!='false') ? $szSCAtts["iswidget"] : $szSCAtts["asin"] . $szSCAtts["isbn"] . $szSCAtts["upc"] . $szSCAtts["ean"] . $szSCAtts["width"] . $szSCAtts["height"];
+           } else {
+               $szTransient .= 'testpanel';
+           }
+           $szTransient   = (strlen($szTransient) > 40) ? substr($szTransient,0,40) : $szTransient;
            return $szTransient;
     }
 
-    public function szDeleteTransient()
-    {
-        delete_transient($this->szTransientID());
-    }
-
     public function szParseShortcode($szAtts)
-    {
+    {       
         // When does our cache expire?
         $szSets            = new szWPOptions();
         if((! $szSets->getAccessKey())||(! $szSets->getSecretKey())||(! $szSets->getAssocID()))
@@ -1182,11 +1182,12 @@ class szShortcode
                      'height'     => '',
                      'country'    => 'us',
                      'url'        => 'false',
-                     'noblanks'   => 'false'
+                     'noblanks'   => 'false',
+                     'iswidget'   => 'false'
 	               ), $szAtts);
 	           
-	        $szTransientID = $this->szTransientID();
-       
+	        $szTransientID = $this->szTransientID($szSCAtts);
+	               
             if ((false === ($szOutput = get_transient($szTransientID)))||($szTransientID=='szT-testpanel'))
             {
                 $szURL        = $this->szAmazonURL($szSCAtts['asin'],$szSCAtts['upc'],$szSCAtts['isbn'],$szSCAtts['ean'],$szSCAtts['country']);
