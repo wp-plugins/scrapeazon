@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the ScrapeAZon package.
 msgid ""
 msgstr ""
-"Project-Id-Version: ScrapeAZon 2.1.0-beta6\n"
+"Project-Id-Version: ScrapeAZon 2.1.0\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/scrapeazon\n"
-"POT-Creation-Date: 2014-07-19 20:44:33+00:00\n"
+"POT-Creation-Date: 2014-07-26 18:36:53+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -493,6 +493,10 @@ msgid ""
 "CERTAIN CONTENT THAT APPEARS ON THIS SITE COMES FROM AMAZON SERVICES LLC. "
 "THIS CONTENT IS PROVIDED 'AS IS' AND IS SUBJECT TO CHANGE OR REMOVAL AT ANY "
 "TIME."
+msgstr ""
+
+#: szclasses.php:1169
+msgid "<p>Some ScrapeAZon settings have not been configured.</p>"
 msgstr ""
 
 #. Plugin Name of the plugin/theme
