@@ -9,7 +9,7 @@ Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.5
 Tested up to:      3.9.1
-Stable tag:        2.0.6
+Stable tag:        2.1.0
 License:           GPL3
 
 Display Amazon.com customer reviews for products you specify in WordPress pages or posts, or as a widget.
