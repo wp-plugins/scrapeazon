@@ -1166,9 +1166,11 @@ class szShortcode
     {       
         // When does our cache expire?
         $szSets            = new szWPOptions();
+        $szErrors          = __('<p>Some ScrapeAZon settings have not been configured.</p>');
+        
         if((! $szSets->getAccessKey())||(! $szSets->getSecretKey())||(! $szSets->getAssocID()))
         {
-             echo '';
+             return $szErrors;
         } else {
             $szTransientExpire = $szSets->getCacheExpire();
         
