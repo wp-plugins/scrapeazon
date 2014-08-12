@@ -191,6 +191,9 @@ Yes. By default, if the Amazon API returns no reviews for your product, ScrapeAZ
 
 == Upgrade Notice ==
 
+= 2.1.1 =
+Fixes a stylesheet loading issue.
+
 = 2.1.0 =
 Adds a caching mechanism for enhanced performance along with other new features and fixes. Optimizes shortcode defaults and fixes some variable and array initialization issues.
 
@@ -249,6 +252,9 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
+
+= 2.1.1 =
+* Bug fix for a stylesheet loading issue.
 
 = 2.1.0 =
 * Added a caching mechanism and related settings for faster performance.
