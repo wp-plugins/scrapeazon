@@ -1002,8 +1002,8 @@ class szShortcode
         
         $szItemID = $this->szGetIDType($szASIN,$szUPC,$szISBN,$szEAN);
         
-        $szUCCountry = strtoupper($szCountry);
-        $szDomain = (in_array($szUCCountry,$szSets->szCountries)) ? $this->szGetDomain($szUCCountry) : $this->szGetDomain($szSets->getCountryID());
+        $szUCCountry = ($szCountry!='--') ? strtoupper($szCountry) : strtoupper($szSets->getCountryID());
+        $szDomain = (in_array($szUCCountry,$szSets->szCountries)) ? $this->szGetDomain($szUCCountry) : '.com';
         
         $szHost = 'webservices.amazon' . $szDomain;
         
@@ -1182,7 +1182,7 @@ class szShortcode
                      'border'     => 'false',
                      'width'      => '',
                      'height'     => '',
-                     'country'    => 'us',
+                     'country'    => '--',
                      'url'        => 'false',
                      'noblanks'   => 'false',
                      'iswidget'   => 'false'

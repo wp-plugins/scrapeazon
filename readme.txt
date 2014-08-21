@@ -191,6 +191,9 @@ Yes. By default, if the Amazon API returns no reviews for your product, ScrapeAZ
 
 == Upgrade Notice ==
 
+= 2.1.2 =
+Fixes a default global country settings bug.
+
 = 2.1.1 =
 Fixes a stylesheet loading issue.
 
@@ -252,6 +255,9 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
+
+= 2.1.2 =
+* Bug fix for default global country setting issue.
 
 = 2.1.1 =
 * Bug fix for a stylesheet loading issue.
