@@ -132,6 +132,7 @@ class szWPOptions
     public $szCacheExpire    = 12;
     public $szClearCache     = 0;
     public $szOptionsPage    = 'scrapeaz-options';
+    public $szDefer          = 0;
 
     public function szCleanCache()
     {
@@ -267,6 +268,18 @@ class szWPOptions
         update_option('scrape-clearcache','0');
         return($szClear);
     }
+
+    public function setDeferLoad($newval)
+    {
+        $this->szDefer = (trim($newval)=='checked') ? 1 : trim($newval);
+        return absint($this->szDefer);
+    }
+    
+    public function getDeferLoad()
+    {
+        $this->szDefer = get_option('scrape-defer','');
+        return $this->szDefer;
+    }
        
     public function szOptionsCallback()
     {
@@ -321,6 +334,7 @@ class szWPOptions
         register_setting('scrapeazon-options','scrape-responsive',array(&$this, 'setResponsive'));
         register_setting('scrapeazon-perform','scrape-perform',array(&$this, 'setCacheExpire'));
         register_setting('scrapeazon-perform','scrape-clearcache',array(&$this, 'setClearCache'));
+        register_setting('scrapeazon-perform','scrape-defer',array(&$this, 'setDeferLoad'));
     }
        
     public function szAddAdminPage() 
@@ -530,6 +544,16 @@ class szWPOptions
         echo $szField;
     }
     
+    public function szDeferField($args)
+    {
+        $szField  = '<input type="checkbox" name="scrape-defer" id="scrape-defer" value="1" ' .
+        checked(1, $this->getDeferLoad(), false) .
+        $this->getDeferLoad() .
+        ' /><br />';
+        $szField .= '<label for="scrape-defer"> '  . sanitize_text_field($args[0]) . '</label>';
+        echo $szField;
+    }
+    
     public function getOptionsForm()
     {
         add_settings_field(
@@ -628,6 +652,17 @@ class szWPOptions
             'scrapeazon_perform_section',
             array(
                 __('The number of hours that should pass before cached Amazon API calls expire. Cannot be more than 23 hours. Default is 12.','scrapeazon')
+            )
+        );
+        
+        add_settings_field(
+            'scrapeazon-defer',
+            __('Defer Until Footer','scrapeazon'),
+            array(&$this, 'szDeferField'),
+            'scrapeaz-perform',
+            'scrapeazon_perform_section',
+            array(
+                __('Loads the ScrapeAZon iframe data asynchronously for better site performance. This option ONLY works if you do not use the "url" shortcode parameter. See the Help menu for more information.','scrapeazon')
             )
         );
         
@@ -737,6 +772,12 @@ class szWPOptions
                           __('value to the number of hours you want the cached data to persist.','scrapeazon') .
                           '</p><p>' . 
                           __('You can also choose to clear the existing cached data from the WordPress database. However, you should always back up your WordPress database before attempting to delete data in bulk.','scrapeazon') .
+                          '</p><p>' .
+                          __('Select the ','scrapeazon') .
+                          '<strong>' .
+                          __('Defer Until Footer','scrapeazon') .
+                          '</strong>' .
+                          __(' field to ensure that the entire main page of your site loads before ScrapeAZon attempts to load the reviews iframe. This option only works for the iframe. If you use a caching plugin, such as W3 Total Cache, you might need to adjust your settings for this option to work properly.','scrapeazon') .
                           '</p><p>' .
                           __('Please be aware that if you are using a caching plugin, such as W3 Total Cache, with object caching enabled, the Clear Cache option will not do anything. You will need to clear the object cache by using the caching plugin\'s clear cache feature.','scrapeazon') .
                           '</p>';
@@ -913,6 +954,8 @@ class szWidget extends WP_Widget {
 
 class szShortcode
 {   
+    public $szIFrameWidget        = '';
+    
     public function szGetDomain($szCountryId)
     {
         switch ($szCountryId) {
@@ -1161,12 +1204,23 @@ class szShortcode
            $szTransient   = (strlen($szTransient) > 40) ? substr($szTransient,0,40) : $szTransient;
            return $szTransient;
     }
+    
+    public function szDeferReviews()
+    {
+        echo '<script type="text/javascript">' .
+             '$jhgrQuery = jQuery.noConflict();' .
+             ' $jhgrQuery(document).ready(function() {' .
+             '    $jhgrQuery(\'#deferscrape\').append(\'' . str_replace('\'','\\\'',$this->szIFrameWidget) . '\');' . 
+             ' });' .
+             '</script>';
+    }
 
     public function szParseShortcode($szAtts)
     {       
         // When does our cache expire?
         $szSets            = new szWPOptions();
-        $szErrors          = __('<p>Some ScrapeAZon settings have not been configured.</p>');
+        $szErrors          = __('<p>Some ScrapeAZon settings have not been configured.</p>','scrapeazon');
+        $szOutput          = '';
         
         if((! $szSets->getAccessKey())||(! $szSets->getSecretKey())||(! $szSets->getAssocID()))
         {
@@ -1202,20 +1256,29 @@ class szShortcode
                 if(true === ($szSCAtts['url']==strtolower('true'))) 
                 {
                     set_transient ($szTransientID, $this->szShowURL($szFrameURL), $szTransientExpire * HOUR_IN_SECONDS);
-                    return get_transient($szTransientID);
+                    $szOutput = get_transient($szTransientID);
                 } else {
                     if($szTransientID=='szT-testpanel')
                     {
-                        return $this->szShowIFrame($szSCAtts['noblanks'],$szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL,$szHasReviews);
+                        $szOutput = $this->szShowIFrame($szSCAtts['noblanks'],$szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL,$szHasReviews);
                     } else {
                         set_transient ($szTransientID, $this->szShowIFrame($szSCAtts['noblanks'],$szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL,$szHasReviews), $szTransientExpire * HOUR_IN_SECONDS );
-                        return get_transient($szTransientID);
+                        $szOutput = get_transient($szTransientID);
                     }
                 }
-
             } else {
-                return get_transient($szTransientID);
+                $szOutput = get_transient($szTransientID);
             }
+        }
+
+        if(($szSets->getDeferLoad()=='1')&&($szTransientID!='szT-testpanel')&&($szSCAtts['url']!=strtolower('true')))
+        {
+            $this->szIFrameWidget = $szOutput;
+            $this->szIFrameWidget = str_replace(array("\n", "\t", "\r"), '', $this->szIFrameWidget);
+            add_action('wp_footer', array(&$this,'szDeferReviews'),100);
+            return '<div id="deferscrape"></div>';
+        } else {
+           return $szOutput;
         }
         unset($szSets);
     }

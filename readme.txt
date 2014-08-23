@@ -8,7 +8,7 @@ Author URI:        http://www.timetides.com
 Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.5
-Tested up to:      3.9.2
+Tested up to:      4.0
 Stable tag:        2.1.2
 License:           GPL3
 
@@ -191,6 +191,9 @@ Yes. By default, if the Amazon API returns no reviews for your product, ScrapeAZ
 
 == Upgrade Notice ==
 
+= 2.1.5 =
+Adds an option to the Performance tab to defer iframe loads until the page footer.
+
 = 2.1.2 =
 Fixes a default global country settings bug.
 
@@ -255,6 +258,9 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
+
+= 2.1.5 =
+* Added the ability to defer iframe loads until the footer to enhance site performance.
 
 = 2.1.2 =
 * Bug fix for default global country setting issue.
