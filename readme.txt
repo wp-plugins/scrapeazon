@@ -9,7 +9,7 @@ Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.5
 Tested up to:      4.0
-Stable tag:        2.1.2
+Stable tag:        2.1.5
 License:           GPL3
 
 Display Amazon.com customer reviews for products you specify in WordPress pages or posts, or as a widget.
@@ -261,6 +261,7 @@ This is the first version of the plugin.
 
 = 2.1.5 =
 * Added the ability to defer iframe loads until the footer to enhance site performance.
+* Tested in WordPress 4.0
 
 = 2.1.2 =
 * Bug fix for default global country setting issue.
