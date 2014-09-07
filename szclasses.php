@@ -849,7 +849,7 @@ class szWidget extends WP_Widget {
 		    $szSCode = '[scrapeazon ' . strip_tags($instance['itype']) . '="' . strip_tags($instance['asin']) . '"';
 		    if(($instance['width']!=0) && isset ($instance[ 'width' ]) )
 		    {
-		        $szSCode .= ' width="' . asbint($instance[ 'width' ]) . '"';
+		        $szSCode .= ' width="' . absint($instance[ 'width' ]) . '"';
 		    }
 		    if(($instance['height']!=0) && isset ($instance[ 'height' ]) )
 		    {

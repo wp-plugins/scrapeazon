@@ -9,7 +9,7 @@ Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.5
 Tested up to:      4.0
-Stable tag:        2.1.5
+Stable tag:        2.1.6
 License:           GPL3
 
 Display Amazon.com customer reviews for products you specify in WordPress pages or posts, or as a widget.
@@ -191,6 +191,9 @@ Yes. By default, if the Amazon API returns no reviews for your product, ScrapeAZ
 
 == Upgrade Notice ==
 
+= 2.1.6 =
+Fixes an undefined function in the widget.
+
 = 2.1.5 =
 Adds an option to the Performance tab to defer iframe loads until the page footer.
 
@@ -258,6 +261,9 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
+
+= 2.1.6 =
+* Fixed an undefined function error in the widget.
 
 = 2.1.5 =
 * Added the ability to defer iframe loads until the footer to enhance site performance.
