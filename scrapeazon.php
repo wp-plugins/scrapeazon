@@ -3,7 +3,7 @@
  * Plugin Name: ScrapeAZon
  * Plugin URI: http://www.timetides.com/scrapeazon-plugin-wordpress
  * Description: Retrieves Amazon.com reviews for products you choose from the Amazon Product Advertising API and displays those reviews in pages, posts, or as a widget on your WordPress blog.
- * Version: 2.1.6
+ * Version: 2.1.7
  * Author: James R. Hanback, Jr.
  * Author URI: http://www.timetides.com
  * License: GPL3
@@ -41,9 +41,13 @@ $szOpts = new szWPOptions;
 $szReqs = new szRequirements;
 $szShcd = new szShortcode;
 
+// Add widget
+add_action('widgets_init',create_function('', 'return register_widget("szWidget");'));
+
+// Register scripts and styles
 add_action('wp_enqueue_scripts',array(&$szOpts,'szRequireStyles'));
 
-// Localization
+// Localization support
 add_action('plugins_loaded', array(&$szReqs, 'szLoadLocal'));
 
 if (is_admin()) {
@@ -58,8 +62,5 @@ add_filter("plugin_action_links_$szPlugin", array(&$szOpts, 'szOptionsLink'));
 
 // Add shortcode functionality
 add_shortcode( 'scrapeazon', array(&$szShcd, 'szParseShortcode') );
-
-// Add widget
-add_action('widgets_init',create_function('', 'return register_widget("szWidget");'));
 
 ?>

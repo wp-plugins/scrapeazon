@@ -147,8 +147,11 @@ class szWPOptions
 
     public function szRequireStyles()
     {
-        // Load responsive stylesheet if required
-        if($this->getResponsive())
+        global $post;
+        // Load responsive stylesheet if required and if shortcode is present
+        // below code does NOT work with do_shortcode and requires WP 3.6 or later
+
+        if((has_shortcode($post->post_content,'scrapeazon' )|| is_home() || is_active_widget( false, false, 'sz_widget', true )) && $this->getResponsive())
         {
             $szStylesheet = plugins_url('szstyles.css',__FILE__);
             wp_register_style('scrape-styles',$szStylesheet);
@@ -823,6 +826,7 @@ class szWPOptions
 }
 
 class szWidget extends WP_Widget {
+
     public function __construct() 
     {
 	    parent::__construct(
@@ -841,26 +845,23 @@ class szWidget extends WP_Widget {
 		if ( ! empty( $title ) )
 			echo $args['before_title'] . $title . $args['after_title'];
 		if( isset ($instance[ 'asin' ]) )
-		{
-		    if(empty($instance['itype']))
-		    {
-		        $instance['itype'] = 'asin';
-		    }
-		    $szSCode = '[scrapeazon ' . strip_tags($instance['itype']) . '="' . strip_tags($instance['asin']) . '"';
-		    if(($instance['width']!=0) && isset ($instance[ 'width' ]) )
-		    {
-		        $szSCode .= ' width="' . absint($instance[ 'width' ]) . '"';
-		    }
-		    if(($instance['height']!=0) && isset ($instance[ 'height' ]) )
-		    {
-		        $szSCode .= ' height="' . absint($instance[ 'height' ]) . '"';
-		    }
-		    if((in_array($instance['border'],$szBArray)) && isset ($instance[ 'border' ]) )
-		    {
-		        $szSCode .= ' border="' . strip_tags($instance[ 'border' ]) . '"';
-		    }
-		    $szSCode .= ' iswidget="' . $instance['asin'] . $instance['height'] . $instance['width'] . '"]';
-		    echo do_shortcode($szSCode);
+		{		    
+            $szAtts = array(
+                           'asin'       => ($instance['itype']=='asin') ? $instance['asin'] : '',
+                           'upc'        => ($instance['itype']=='upc' ) ? $instance['asin'] : '',
+                           'isbn'       => ($instance['itype']=='isbn') ? $instance['asin'] : '',
+                           'ean'        => ($instance['itype']=='ean' ) ? $instance['asin'] : '',
+                           'border'     => ((in_array($instance['border'],$szBArray)) && isset ($instance[ 'border' ]) ) ? $instance['border'] : 'false',
+                           'width'      => (($instance['width']!=0) && isset ($instance[ 'width' ]) ) ? absint($instance['width']) : '',
+                           'height'     => (($instance['height']!=0) && isset ($instance[ 'height' ]) ) ? absint($instance['height']) : '',
+                           'country'    => '--',
+                           'url'        => 'false',
+                           'noblanks'   => 'false',
+                           'iswidget'   => 'true'
+                       );
+            $szShcd = new szShortcode;
+            echo $szShcd->szParseShortcode($szAtts);
+            unset($szShcd);
 		}
 		echo $args['after_widget'];
     }
@@ -955,6 +956,7 @@ class szWidget extends WP_Widget {
 class szShortcode
 {   
     public $szIFrameWidget        = '';
+    public $szElementID           = '';
     
     public function szGetDomain($szCountryId)
     {
@@ -1116,7 +1118,6 @@ class szShortcode
     public function szRetrieveFrameURL($szResults)
     {
         $szIFrameURL='';
-        //$szResults = simplexml_load_string($szXML);
         if($szResults->Items->Item->CustomerReviews->HasReviews) 
         {
             $szIFrameURL = str_replace('http://',$this->szIsSSL(),$szResults->Items->Item->CustomerReviews->IFrameURL);
@@ -1193,15 +1194,16 @@ class szShortcode
     
     public function szTransientID($szSCAtts)
     {
-           $szScreen     = (is_admin()) ? get_current_screen()->id : '';
-           $szTransient  = "szT-";
+           $szScreen          = (is_admin()) ? get_current_screen()->id : '';
+           $szTransient       = "szT-";
+           $szTransientValues = '';
            if ($szScreen != 'admin_page_scrapeaz-tests')
            {
-               $szTransient .= ($szSCAtts["iswidget"]!='false') ? $szSCAtts["iswidget"] : $szSCAtts["asin"] . $szSCAtts["isbn"] . $szSCAtts["upc"] . $szSCAtts["ean"] . $szSCAtts["width"] . $szSCAtts["height"];
+               $szTransientValues  = implode('',$szSCAtts);
+               $szTransient       .=  wp_hash($szTransientValues);
            } else {
-               $szTransient .= 'testpanel';
+               $szTransient       .= 'testpanel';
            }
-           $szTransient   = (strlen($szTransient) > 40) ? substr($szTransient,0,40) : $szTransient;
            return $szTransient;
     }
     
@@ -1210,18 +1212,18 @@ class szShortcode
         echo '<script type="text/javascript">' .
              '$jhgrQuery = jQuery.noConflict();' .
              ' $jhgrQuery(document).ready(function() {' .
-             '    $jhgrQuery(\'#deferscrape\').append(\'' . str_replace('\'','\\\'',$this->szIFrameWidget) . '\');' . 
+             '    $jhgrQuery(\'#deferscrape' . $this->szElementID . '\').append(\'' . str_replace('\'','\\\'',$this->szIFrameWidget) . '\');' . 
              ' });' .
              '</script>';
     }
 
     public function szParseShortcode($szAtts)
-    {       
+    {
         // When does our cache expire?
         $szSets            = new szWPOptions();
         $szErrors          = __('<p>Some ScrapeAZon settings have not been configured.</p>','scrapeazon');
         $szOutput          = '';
-        
+
         if((! $szSets->getAccessKey())||(! $szSets->getSecretKey())||(! $szSets->getAssocID()))
         {
              return $szErrors;
@@ -1243,6 +1245,7 @@ class szShortcode
 	               ), $szAtts);
 	           
 	        $szTransientID = $this->szTransientID($szSCAtts);
+            $this->szElementID   = '-' . $szTransientID;
 	               
             if ((false === ($szOutput = get_transient($szTransientID)))||($szTransientID=='szT-testpanel'))
             {
@@ -1276,7 +1279,7 @@ class szShortcode
             $this->szIFrameWidget = $szOutput;
             $this->szIFrameWidget = str_replace(array("\n", "\t", "\r"), '', $this->szIFrameWidget);
             add_action('wp_footer', array(&$this,'szDeferReviews'),100);
-            return '<div id="deferscrape"></div>';
+            return '<div id="deferscrape' . $this->szElementID . '"></div>';
         } else {
            return $szOutput;
         }
