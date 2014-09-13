@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the ScrapeAZon package.
 msgid ""
 msgstr ""
-"Project-Id-Version: ScrapeAZon 2.1.7\n"
+"Project-Id-Version: ScrapeAZon 2.1.8\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/scrapeazon\n"
-"POT-Creation-Date: 2014-09-07 22:00:11+00:00\n"
+"POT-Creation-Date: 2014-09-13 00:08:02+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
