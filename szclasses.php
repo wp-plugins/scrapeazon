@@ -151,7 +151,7 @@ class szWPOptions
         // Load responsive stylesheet if required and if shortcode is present
         // below code does NOT work with do_shortcode and requires WP 3.6 or later
 
-        if((has_shortcode($post->post_content,'scrapeazon' )|| is_home() || is_active_widget( false, false, 'sz_widget', true )) && $this->getResponsive())
+        if((has_shortcode($post->post_content,'scrapeazon' )|| is_home() || is_front_page() || is_active_widget( false, false, 'sz_widget', true )) && $this->getResponsive())
         {
             $szStylesheet = plugins_url('szstyles.css',__FILE__);
             wp_register_style('scrape-styles',$szStylesheet);
