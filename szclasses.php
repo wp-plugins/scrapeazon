@@ -1049,7 +1049,7 @@ class szShortcode
            $szTransientValues = '';
            if ($szScreen != 'admin_page_scrapeaz-tests')
            {
-               $szTransientValues  = szIsSSL() . implode('',$szSCAtts);
+               $szTransientValues  = $this->szIsSSL() . implode('',$szSCAtts);
                $szTransient       .= wp_hash($szTransientValues);
            } else {
                $szTransient       .= 'testpanel';
