@@ -82,6 +82,10 @@ Amazon's API requires an affiliate account id in order to correctly process requ
 
 Amazon's API requires an AWS Access Key ID and an AWS Secret Key in order to correctly process requests and download information about item lookups. You cannot obtain this information unless you sign up for an account.
 
+= Can I use a user-specific (IAM) access key id and secret key with this plugin? =
+
+No. As of this writing, Amazon's Product Advertising API does not support the use of IAM credentials. Therefore, you must use your root Access Key ID and Secret Key in order to successfully obtain product reviews. If you have already created root credentials and are no longer able to access your Secret Key, you might need to generate a new root key in the Amazon AWS Security Console.
+
 = Can I retrieve reviews from sites other than Amazon by using this plugin? =
 
 No. This plugin currently only accesses reviews for products that are available through the Amazon.com Product Advertising API.
@@ -112,12 +116,6 @@ You can also globally configure a country code on the ScrapeAZon Settings page i
 
 Similar to most WordPress widgets, first click Appearance > Widgets from the Admin menu. Next, drag the widget named "Amazon Reviews" to the location in which you want it to display. Once you have placed the widget, you must fill in the "ASIN" field with the ASIN of the product that contains the reviews you want to display. You can optionally fill in the Height, Width, and Border fields. You can also retitle the widget if you like. Note that whatever global settings you have configured on the ScrapeAZon Settings pages also apply to the widget. Therefore, if you have selected Responsive mode, the widget will attempt to use a responsive style.
 
-= ScrapeAZon keeps showing me error notices about fopen wrappers. What's wrong? =
-
-Depending on your PHP installation, your system might not support client URL (cURL), which is the default method of retrieval that ScrapeAZon uses. If your system does not support cURL, try selecting the checkbox on the ScrapeAZon settings page that configures the plugin to use file_get_contents instead. However, you should be aware that fopen wrappers can be a security risk to your site.
-
-The plugin will display messages on its Settings page that attempt to help you determine whether your system supports cURL, fopen wrappers, or neither of those features.
-
 = ScrapeAZon isn't displaying *anything* on my page. What's up with that? =
 
 Some common reasons you might see an error or nothing at all are:
@@ -127,14 +125,13 @@ Some common reasons you might see an error or nothing at all are:
 * Your Amazon.com Associate ID has not been set or is incorrect.
 * You have not allowed enough time for your keys or IDs to propagate at Amazon.com.
 * Your AWS Access Key ID and Secret Key are associated with an incorrect Amazon.com Product Advertising API account.
-* Your site's HTTP client (cURL or fopen wrappers) was not able to connect to the Amazon API.
+* Your AWS Access Key ID and Secret Key are not root keys.
+* Your site's HTTP retrieval client was not able to connect to the Amazon API.
 * Your site has sent too many requests per second to the Amazon Product Advertising API and Amazon has throttled your access.
 * Your site caches the pages that display reviews for an extended period of time (longer than 24 hours).
 * Your site's server date, time, or time zone are not properly configured.
 
 If you know that reviews exist for the product you specified, ensure that the ASIN/ISBN-10 you provided in the shortcode is correct. Also, ensure that you are not viewing a previously cached version of your page that does not contain the shortcode.
-
-It is also possible that you have configured ScrapeAZon to use a Web retrieval method that is not available in your environment. By default, ScrapeAZon attempts to use cURL. If cURL is not enabled in your environment, you can try to use file_get_contents() instead by selecting the checkbox on the Settings page. However, if neither cURL nor fopen wrappers is supported by your PHP installation, you will not be able to use ScrapeAZon.
 
 = How do I style the iframe? =
 
@@ -190,6 +187,9 @@ Yes. By default, if the Amazon API returns no reviews for your product, ScrapeAZ
 <code>[scrapeazon isbn="9781451627299" noblanks="true"]</code> 
 
 == Upgrade Notice ==
+
+= 2.2.0 =
+Replaces use of cURL and file_get_contents retrieval methods with wp_remote_get (the WordPress way).
 
 = 2.1.8 =
 Improves performance by only loading responsive style sheet on pages that use the short code or widget.
@@ -264,6 +264,13 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
+
+= 2.2.0=
+* Replaced cURL and file_get_contents calls with wp_remote_get
+* Removed settings related to cURL and file_get_contents
+* Enhanced transient function to account for variation between HTTP and HTTPS
+* Modified documentation/FAQ
+* Updated POT file
 
 = 2.1.8 =
 * Modified the unique identifiers generated by the caching mechanism

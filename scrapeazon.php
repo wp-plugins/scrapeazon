@@ -3,7 +3,7 @@
  * Plugin Name: ScrapeAZon
  * Plugin URI: http://www.timetides.com/scrapeazon-plugin-wordpress
  * Description: Retrieves Amazon.com reviews for products you choose from the Amazon Product Advertising API and displays those reviews in pages, posts, or as a widget on your WordPress blog.
- * Version: 2.1.8
+ * Version: 2.2.0-devel
  * Author: James R. Hanback, Jr.
  * Author URI: http://www.timetides.com
  * License: GPL3
@@ -38,8 +38,9 @@ $szPPath .= '/szclasses.php';
 include_once($szPPath);
 
 $szOpts = new szWPOptions;
-$szReqs = new szRequirements;
 $szShcd = new szShortcode;
+
+register_activation_hook($szPPath,array(&$szOpts,'szActivate'));
 
 // Add widget
 add_action('widgets_init',create_function('', 'return register_widget("szWidget");'));
@@ -48,13 +49,11 @@ add_action('widgets_init',create_function('', 'return register_widget("szWidget"
 add_action('wp_enqueue_scripts',array(&$szOpts,'szRequireStyles'));
 
 // Localization support
-add_action('plugins_loaded', array(&$szReqs, 'szLoadLocal'));
+add_action('plugins_loaded', array(&$szOpts, 'szLoadLocal'));
 
 if (is_admin()) {
     add_action('admin_init', array(&$szOpts, 'szRegisterSettings'));
-    add_action('admin_init', array(&$szReqs, 'szHideNotices'));
     add_action('admin_menu', array(&$szOpts, 'szAddAdminPage'));
-    add_action('admin_notices', array(&$szReqs, 'szShowNotices'));
     add_action('admin_notices', array(&$szOpts, 'szShowNPNotices'));
 }
 

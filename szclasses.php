@@ -25,101 +25,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-class szRequirements
-{
-    public $szCurlEnabled     = 'Client URL (cURL) is enabled on your server. ScrapeAZon can use it to retrieve reviews.';
-    public $szCurlDisabled    = 'Client URL (cURL) is either <a href="http://us2.php.net/manual/en/curl.setup.php">not installed or not enabled</a> on your server. ScrapeAZon might not be able to retrieve reviews.';
-    public $szFileGetEnabled  = 'PHP fopen wrappers (file_get_contents) are enabled on your server. For security, <a href="http://www.php.net/manual/en/filesystem.configuration.php#ini.allow-url-fopen" target="_blank">disable fopen wrappers</a> and <a href="http://us2.php.net/manual/en/curl.setup.php">use cURL</a> instead.';
-    public $szNoRetrieval     = 'Neither client URL (cURL) nor fopen wrappers (file_get_contents) are enabled on your server. ScrapeAZon will not be able to retrieve reviews.';
-    
-    public function szLoadLocal()
-    {
-        load_plugin_textdomain('scrapeazon',false,basename(dirname(__FILE__)).'/lang');
-    }
-
-    public function szCurlCheck()
-    {
-        return (in_array('curl',get_loaded_extensions())) ? true : false;
-    }
-    
-    public function szCurlExecCheck($szDisabled)
-    {
-        $szDisabled = explode(', ', ini_get('disable_functions'));
-        return !in_array('curl_exec', $szDisabled);
-    }
-    
-    public function szFileGetCheck()
-    {
-        return (ini_get('allow_url_fopen')) ? true : false;
-    }
-    
-    public function szRestoreNotices()
-    {
-        $szUser = wp_get_current_user();
-        if(isset($_GET['restore_szNotices']) && '1' == $_GET['restore_szNotices'])
-        {
-            delete_user_meta($szUser->ID, 'scrapeazon_ignore_FileGetEnabled','true');
-            delete_user_meta($szUser->ID, 'scrapeazon_ignore_CurlEnabled','true');
-            delete_user_meta($szUser->ID, 'scrapeazon_ignore_CurlDisabled','true');
-        }
-    }
-
-    public function szHideNotices()
-    {
-        $szUser = wp_get_current_user();
-        if(isset($_GET['ignore_FileGetEnabled']) && '0' == absint($_GET['ignore_FileGetEnabled']))
-        {
-            add_user_meta($szUser->ID, 'scrapeazon_ignore_FileGetEnabled','true',true);
-        }
-        if(isset($_GET['ignore_CurlEnabled']) && '0' == absint($_GET['ignore_CurlEnabled']))
-        {
-            add_user_meta($szUser->ID, 'scrapeazon_ignore_CurlEnabled','true',true);
-        }
-        if(isset($_GET['ignore_CurlDisabled']) && '0' == absint($_GET['ignore_CurlDisabled']))
-        {
-            add_user_meta($szUser->ID, 'scrapeazon_ignore_CurlDisabled','true',true);
-        }
-    }
-        
-    public function szShowNotices()
-    {
-        $szScreenID = get_current_screen()->id;
-        $szUser = wp_get_current_user();
-        $szDisabled = 0;
-        $szRestoreNotices = (isset($_GET['restore_szNotices'])=='1') ? '1' : '0'; 
-        
-        if ('1' == absint($szRestoreNotices)) 
-        {
-            $this->szRestoreNotices();
-        }
-        
-        if($szScreenID == 'settings_page_scrapeaz-options') {
-            if((!($this->szCurlExecCheck($szDisabled)))&&(!($this->szFileGetCheck())))
-            {
-                printf('<div class="error"><p>%s</p></div>', __($this->szNoRetrieval,'scrapeazon'),'ScrapeAZon');
-            }
-            if ( ! get_user_meta($szUser->ID, 'scrapeazon_ignore_FileGetEnabled') ) {
-                if($this->szFileGetCheck())
-                {
-                    printf('<div class="error"><p>' . __($this->szFileGetEnabled,'scrapeazon') . ' | <a href="%1$s">' . __('Hide Notice','scrapeazon') . '</a></p></div>', '?page=scrapeaz-options&ignore_FileGetEnabled=0');
-                }
-            }
-            if ( ! get_user_meta($szUser->ID, 'scrapeazon_ignore_CurlEnabled') ) {
-                if(($this->szCurlExecCheck($szDisabled))&&($this->szCurlCheck()))
-                {
-                    printf('<div class="updated"><p>' . __($this->szCurlEnabled,'scrapeazon') . ' | <a href="%1$s">' . __('Hide Notice','scrapeazon') . '</a></p></div>', '?page=scrapeaz-options&ignore_CurlEnabled=0');
-                }
-            }
-            if ( ! get_user_meta($szUser->ID, 'scrapeazon_ignore_CurlDisabled') ) {
-                if((!($this->szCurlExecCheck($szDisabled)))||((!($this->szCurlCheck()))))
-                {
-                    printf('<div class="updated"><p>' . __($this->szCurlDisabled,'scrapeazon') . ' | <a href="%1$s">' . __('Hide Notice','scrapeazon') . '</a></p></div>', '?page=scrapeaz-options&ignore_CurlDisabled=0');
-                }
-            }
-        }
-    }
-}
-
 class szWPOptions
 {
     public $szAccessKey      = '';
@@ -133,6 +38,11 @@ class szWPOptions
     public $szClearCache     = 0;
     public $szOptionsPage    = 'scrapeaz-options';
     public $szDefer          = 0;
+
+    public function szLoadLocal()
+    {
+        load_plugin_textdomain('scrapeazon',false,basename(dirname(__FILE__)).'/lang');
+    }
 
     public function szCleanCache()
     {
@@ -208,19 +118,6 @@ class szWPOptions
     {
         $this->szAssocID = get_option('scrape-amz-assoc-id','');
         return sanitize_text_field($this->szAssocID);
-    }
-    
-    public function setRetrieveMethod($newval)
-    {        
-        // Upgrading from 1.x?
-        $this->szRetrieveMethod = (trim($newval)=='checked') ? 1 : trim($newval);
-        return absint($this->szRetrieveMethod);
-    }
-    
-    public function getRetrieveMethod()
-    {
-        $this->szRetrieveMethod = get_option('scrape-getmethod','');
-        return $this->szRetrieveMethod;
     }
     
     public function setCountryID($newval)
@@ -332,7 +229,6 @@ class szWPOptions
         register_setting('scrapeazon-options','scrape-aws-access-key-id',array(&$this, 'setAccessKey'));
         register_setting('scrapeazon-options','scrape-aws-secret-key',array(&$this, 'setSecretKey'));
         register_setting('scrapeazon-options','scrape-amz-assoc-id',array(&$this, 'setAssocID'));
-        register_setting('scrapeazon-options','scrape-getmethod',array(&$this, 'setRetrieveMethod'));
         register_setting('scrapeazon-options','scrape-getcountry',array(&$this, 'setCountryID'));
         register_setting('scrapeazon-options','scrape-responsive',array(&$this, 'setResponsive'));
         register_setting('scrapeazon-perform','scrape-perform',array(&$this, 'setCacheExpire'));
@@ -471,16 +367,6 @@ class szWPOptions
         echo $szField;
     }
     
-    public function szMethodField($args)
-    {
-        $szField  = '<input type="checkbox" name="scrape-getmethod" id="scrape-getmethod" value="1" ' .
-                    checked(1, $this->getRetrieveMethod(), false) .
-                    $this->getRetrieveMethod() .
-                    ' /><br />';
-        $szField .= '<label for="scrape-getmethod"> '  . sanitize_text_field($args[0]) . '</label>';
-        echo $szField;
-    }
-    
     public function szCountryField($args)
     {
 	    $szField = '<select id="scrape-getcountry" name="scrape-getcountry">';
@@ -528,13 +414,6 @@ class szWPOptions
         echo $szField;
     }
     
-    public function szRestoreNoticesField($args)
-    {
-        $szField  = '<a href="?page=scrapeaz-options&restore_szNotices=1">' . __('Restore Hidden ScrapeAZon Notices','scrapeazon') . '</a><br />';
-        $szField .= '<label for="scrape-restore"> ' . sanitize_text_field($args[0]) . '</label>';
-        echo $szField;
-    }
-    
     public function szAWSTestField()
     {
         echo do_shortcode('[scrapeazon asin="B00HPCF5VU" width="500" height="400" border="false" country="us"]');
@@ -566,7 +445,7 @@ class szWPOptions
             'scrapeaz-options',
             'scrapeazon_retrieval_section',
             array(
-                __('Enter your 20-character AWS Access Key.','scrapeazon')
+                __('Enter your 20-character AWS Access Key. This must be your root AWS Access Key.','scrapeazon')
             )
         );
 
@@ -577,7 +456,7 @@ class szWPOptions
             'scrapeaz-options',
             'scrapeazon_retrieval_section',
             array(
-                __('Enter your 40-character AWS Secret Key.','scrapeazon')
+                __('Enter your 40-character AWS Secret Key. This must be your root AWS Secret Key.','scrapeazon')
             )
         );
         
@@ -602,17 +481,6 @@ class szWPOptions
                 __('Select the country code for the Amazon International API from which you want to pull reviews.','scrapeazon')
             )
         );
-                
-        add_settings_field(
-            'scrape-getmethod',
-            __('Use File_Get_Contents<br><span style="color:red">(not recommended)</span>','scrapeazon'),
-            array(&$this, 'szMethodField'),
-            'scrapeaz-options',
-            'scrapeazon_retrieval_section',
-            array(
-                __('Select this checkbox to use fopen wrappers if your host does not support cURL (not recommended).','scrapeazon')
-            )
-        );
         
         add_settings_field(
             'scrape-responsive',
@@ -622,17 +490,6 @@ class szWPOptions
             'scrapeazon_retrieval_section',
             array(
                 __('Select this checkbox to enable ScrapeAZon styles for sites with responsive design.','scrapeazon')
-            )
-        );
-        
-        add_settings_field(
-            'scrape-restore-notices',
-            __('Restore Notices','scrapeazon'),
-            array(&$this, 'szRestoreNoticesField'),
-            'scrapeaz-options',
-            'scrapeazon_retrieval_section',
-            array(
-                __('Click this link to restore any important ScrapeAZon Settings notifications you might have hidden.','scrapeazon')
             )
         );
         
@@ -687,10 +544,6 @@ class szWPOptions
                           __('The ScrapeAZon plugin retrieves Amazon.com customer reviews for products you choose and displays them in pages or posts on your WordPress blog by way of a WordPress shortcode.','scrapeazon') .
                           '</p> <p>' .
                           __('You must be a participant in both the Amazon.com Affiliate Program and the Amazon.com Product Advertising API in order to use this plugin. Links to Amazon.com forms to join those programs are available on the ScrapeAZon Settings page.','scrapeazon') .
-                          '</p> <p><strong>' .
-                          __('WARNING','scrapeazon') .
-                          '</strong>: ' .
-                          __('If your PHP implementation does not have client URL (cURL) installed and enabled, you should not attempt to use this plugin. You might be able to use the plugin without cURL if your PHP implementation has fopen wrappers enabled. However, fopen wrappers can be a security risk.','scrapeazon') .
                           '</p>';
         $szSettingsUse  = '<p>' .
                           __('The following ScrapeAZon Settings fields are ','scrapeazon') .
@@ -708,8 +561,6 @@ class szWPOptions
                           __('If you select a country here, you will globally enable that country for all your ScrapeAZon shortcodes. If you leave it blank, ScrapeAZon shortcodes will default to reviews from Amazon US unless the ','scrapeazon') .
                           '<code>country</code>' .
                           __(' parameter is specified in the shortcode.','scrapeazon') .
-                          '</li><li><strong>Use File_Get_Contents</strong>: ' .
-                          __('If cURL is enabled on your site, DO NOT select this checkbox. If your site does not support cURL, you can select this checkbox to use fopen wrappers instead. However, fopen wrappers are a security risk. Consider installing cURL.','scrapeazon') .
                           '</li><li><strong>Use Responsive Style</strong>: ' .
                           __('Selecting this checkbox loads a default ScrapeAZon style sheet that will attempt to scale output for sites that have a responsive design. If you specify the ','scrapeazon') .
                           '<code>width</code> ' .
@@ -822,6 +673,21 @@ class szWPOptions
             $this->szCleanCache();
         }
         settings_errors('scrapeazon-notices');
+    }
+    
+    private function szActivate()
+    {
+        // Primarily applies for upgrades to 2.1.9 and later
+        $szUser       = wp_get_current_user();
+        $szMeta_type  = 'user';
+        $szUser_id    = 0;
+        $szMeta_value = '';
+        $szDelete_all = true;
+
+        delete_option('scrape-getmethod');
+        delete_metadata( $szMeta_type, $szUser_id, 'scrapeazon_ignore_FileGetEnabled', $szMeta_value, $szDelete_all );
+        delete_metadata( $szMeta_type, $szUser_id, 'scrapeazon_ignore_CurlEnabled', $szMeta_value, $szDelete_all );
+        delete_metadata( $szMeta_type, $szUser_id, 'scrapeazon_ignore_CurlDisabled', $szMeta_value, $szDelete_all );
     }
 }
 
@@ -1009,7 +875,7 @@ class szShortcode
     public function szGetSignature($szHost,$szPath,$szQuery,$szSecret)
     {
          /* 
-         The following 10 lines of code were adapted from a function found online at
+         The code in this function is adapted from a function found online at
          http://randomdrake.com/2009/07/27/amazon-aws-api-rest-authentication-for-php-5/
          */
      
@@ -1079,39 +945,23 @@ class szShortcode
 
     public function szCallAmazonAPI($szURL)
     {
-        $szSets      = new szWPOptions();
-        $szRetries   = 0;
-        $szSCCode    = "500";
+        $szRetries = 0;
+        $szSCCode  = "500";
         
-        if($szSets->getRetrieveMethod()!=1) 
+        while(($szRetries<5)&&($szSCCode!='200'))
         {
-           $szCurl = curl_init();
-           curl_setopt($szCurl, CURLOPT_URL, $szURL);
-           curl_setopt($szCurl, CURLOPT_RETURNTRANSFER, true);
-        }
-        
-        while(($szRetries<5)&&(!preg_match("/200/",$szSCCode))) {
             usleep(500000*pow($szRetries,2));
-            if($szSets->getRetrieveMethod()==1)
-            {
-                $szXML = file_get_contents($szURL);
-                $szSCCode = $http_response_header[0];
-            }
-            else 
-            {
-                $szXML = curl_exec($szCurl);
-                $szSCCode = curl_getinfo($szCurl,CURLINFO_HTTP_CODE);
-            }
-            $szRetries = $szRetries + 1;
+            $szResponse  = wp_remote_get($szURL);
+            $szSCCode    = wp_remote_retrieve_response_code($szResponse);
+            $szRetries   = $szRetries + 1;
         }
         
-        if($szSets->getRetrieveMethod()!=1) 
+        if($szSCCode==200) 
         {
-            curl_close($szCurl);
+           $szXML = wp_remote_retrieve_body($szResponse);
+        } else {
+           $szXML = '';
         }
-        
-        unset($szSets);
-
         return $szXML;
     }
     
@@ -1199,8 +1049,8 @@ class szShortcode
            $szTransientValues = '';
            if ($szScreen != 'admin_page_scrapeaz-tests')
            {
-               $szTransientValues  = implode('',$szSCAtts);
-               $szTransient       .=  wp_hash($szTransientValues);
+               $szTransientValues  = szIsSSL() . implode('',$szSCAtts);
+               $szTransient       .= wp_hash($szTransientValues);
            } else {
                $szTransient       .= 'testpanel';
            }
