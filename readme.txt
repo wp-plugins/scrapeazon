@@ -265,7 +265,7 @@ This is the first version of the plugin.
 
 == Changelog ==
 
-= 2.2.0=
+= 2.2.0 =
 * Replaced cURL and file_get_contents calls with wp_remote_get
 * Removed settings related to cURL and file_get_contents
 * Enhanced transient function to account for variation between HTTP and HTTPS
