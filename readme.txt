@@ -9,7 +9,7 @@ Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com
 Requires at least: 3.6
 Tested up to:      4.1
-Stable tag:        2.2.0
+Stable tag:        2.2.1
 License:           GPL3
 
 Display Amazon.com customer reviews for products you specify in WordPress pages or posts, or as a widget.
@@ -188,6 +188,9 @@ Yes. By default, if the Amazon API returns no reviews for your product, ScrapeAZ
 
 == Upgrade Notice ==
 
+= 2.2.1 =
+Fixes a WP_DEBUG notice that could be displayed on WordPress content types that are not pages or posts.
+
 = 2.2.0 =
 Replaces use of cURL and file_get_contents retrieval methods with wp_remote_get (the WordPress way).
 
@@ -264,6 +267,11 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
+
+= 2.2.1 =
+* Fixed a WP_DEBUG notice that could be displayed on WordPress content types that are not pages or posts
+* Added a link to a configuration tutorial on the Settings > ScrapeAZon > Usage tab
+* Updated POT file
 
 = 2.2.0 =
 * Replaced cURL and file_get_contents calls with wp_remote_get

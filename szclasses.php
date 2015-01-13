@@ -54,14 +54,32 @@ class szWPOptions
             delete_transient($szDBKey);
         }
     }
+    
+    public function szGetPageType()
+    {
+        global $post;
+        $szGoodpage = FALSE;
+        
+        if($this->getResponsive()) {
+            if(is_home() || is_front_page() || is_active_widget( false, false, 'sz_widget', true )) {
+                 $szGoodpage = TRUE;
+            } elseif (is_single() || is_page()) {
+                if(has_shortcode($post->post_content,'scrapeazon'))
+                {
+                    $szGoodpage = TRUE;
+                }
+            }
+        }
+        
+        return $szGoodpage;
+    }
 
     public function szRequireStyles()
     {
-        global $post;
         // Load responsive stylesheet if required and if shortcode is present
         // below code does NOT work with do_shortcode and requires WP 3.6 or later
 
-        if((has_shortcode($post->post_content,'scrapeazon' )|| is_home() || is_front_page() || is_active_widget( false, false, 'sz_widget', true )) && $this->getResponsive())
+        if($this->szGetPageType())
         {
             $szStylesheet = plugins_url('szstyles.css',__FILE__);
             wp_register_style('scrape-styles',$szStylesheet);
@@ -214,8 +232,8 @@ class szWPOptions
     
     public function szUsageCallback()
     {
+        echo '<p>' . __('A tutorial for configuring ScrapeAZon is available at the <a href="http://www.timetides.com/2015/01/09/configure-scrapeazon-wordpress" target="_blank">author\'s Web site</a>.','scrapeazon') . '</p>';
         echo '<p><b>' . __('Shortcode','scrapeazon') .'</b>: <code>[scrapeazon asin="<i>amazon.com-product-number</i>"]</code></p>';
-
         $sz1      = __('Insert the above shortcode into any page or post where you want Amazon.com customer reviews to appear. Replace ','scrapeazon');
         $sz2      = __(' with the product ASIN or ISBN-10 to retrieve and display the reviews for that product.','scrapeazon');
         $sz3      = __('For a more detailed and complete overview of how ScrapeAZon works, click the "Help" tab on the upper right of the ScrapeAZon settings page.','scrapeazon');
