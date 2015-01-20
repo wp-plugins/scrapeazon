@@ -6,7 +6,7 @@ Plugin URI:        http://www.timetides.com/scrapeazon-plugin-wordpress
 Tags:              amazon.com,amazon,customer,reviews,asin,isbn
 Author URI:        http://www.timetides.com
 Author:            James R. Hanback, Jr.
-Donate link: 	   http://www.timetides.com
+Donate link: 	   http://www.timetides.com/donate
 Requires at least: 3.6
 Tested up to:      4.1
 Stable tag:        2.2.1
