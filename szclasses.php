@@ -33,11 +33,25 @@ class szWPOptions
     public $szRetrieveMethod = '';
     public $szCountryId      = '';
     public $szResponsive     = '';
+    public $szTruncate       = '1000';
     public $szCountries      = array("--","AT","CA","CN","DE","ES","FR","IN","IT","JP","UK","US");
     public $szCacheExpire    = 12;
     public $szClearCache     = 0;
     public $szOptionsPage    = 'scrapeaz-options';
     public $szDefer          = 0;
+
+    public function szDonateLink($links,$file)
+    {
+        // Code based on codex.wordpress.org/Plugin_API/Filter_Reference/plugin_row_meta
+        if(strpos($file, 'scrapeazon.php') !== false)
+        {
+            $szDonateLinks = array(
+                               '<a href="http://www.timetides.com/donate" target="_blank">Donate</a>'
+                               );
+            $links = array_merge($links, $szDonateLinks);
+        }
+        return $links;
+    }
 
     public function szLoadLocal()
     {
@@ -198,6 +212,18 @@ class szWPOptions
         $this->szDefer = get_option('scrape-defer','');
         return $this->szDefer;
     }
+    
+    public function setTruncate($newval)
+    {
+        $this->szTruncate = trim($newval);
+        return absint($this->szTruncate);
+    }
+    
+    public function getTruncate()
+    {
+        $this->szTruncate = get_option('scrape-truncate','1000');
+        return $this->szTruncate;
+    }
        
     public function szOptionsCallback()
     {
@@ -249,6 +275,7 @@ class szWPOptions
         register_setting('scrapeazon-options','scrape-amz-assoc-id',array(&$this, 'setAssocID'));
         register_setting('scrapeazon-options','scrape-getcountry',array(&$this, 'setCountryID'));
         register_setting('scrapeazon-options','scrape-responsive',array(&$this, 'setResponsive'));
+        register_setting('scrapeazon-options','scrape-truncate',array(&$this, 'setTruncate'));
         register_setting('scrapeazon-perform','scrape-perform',array(&$this, 'setCacheExpire'));
         register_setting('scrapeazon-perform','scrape-clearcache',array(&$this, 'setClearCache'));
         register_setting('scrapeazon-perform','scrape-defer',array(&$this, 'setDeferLoad'));
@@ -404,6 +431,15 @@ class szWPOptions
 	    echo $szField;
     }
     
+    public function szTruncateField($args)
+    {
+        $szField  = '<input type="text" id="scrape-trucate" name="scrape-truncate" value="';
+        $szField .= $this->getTruncate();
+        $szField .= '"/><br />';
+        $szField .= '<label for="scrape-truncate"> '  . sanitize_text_field($args[0]) . '</label>';
+        echo $szField;
+    }
+    
     public function szCacheExpireField($args)
     {
 	    $szField = '<select id="scrape-perform" name="scrape-perform">';
@@ -501,6 +537,17 @@ class szWPOptions
         );
         
         add_settings_field(
+            'scrape-truncate',
+            __('Truncate Reviews At','scrapeazon'),
+            array(&$this, 'szTruncateField'),
+            'scrapeaz-options',
+            'scrapeazon_retrieval_section',
+            array(
+                __('Number of characters at which to truncate reviews (0 returns entire review).','scrapeazon')
+            )
+        );
+        
+        add_settings_field(
             'scrape-responsive',
             __('Use Responsive Style','scrapeazon'),
             array(&$this, 'szResponsiveField'),
@@ -579,6 +626,10 @@ class szWPOptions
                           __('If you select a country here, you will globally enable that country for all your ScrapeAZon shortcodes. If you leave it blank, ScrapeAZon shortcodes will default to reviews from Amazon US unless the ','scrapeazon') .
                           '<code>country</code>' .
                           __(' parameter is specified in the shortcode.','scrapeazon') .
+                          '</li><li><strong>Truncate Reviews At</strong>: ' .
+                          __('Specifying 0 here will always return the entirety of reviews. If you specify a positive value other than 0, the text of each review will be truncated to that number of characters. The default truncate value is 1000 characters. This global setting can be overridden at the shortcode level by configuring the shortcode ','scrapeazon') .
+                          '<code>truncate</code>' .
+                          __(' parameter. ','scrapeazon') .
                           '</li><li><strong>Use Responsive Style</strong>: ' .
                           __('Selecting this checkbox loads a default ScrapeAZon style sheet that will attempt to scale output for sites that have a responsive design. If you specify the ','scrapeazon') .
                           '<code>width</code> ' .
@@ -597,7 +648,9 @@ class szWPOptions
                           ':<ul><li><code>isbn</code>: ' .
                           __('Retrieves reviews by using an International Standard Book Number (ISBN) value','scrapeazon') .
                           '</li><li><code>upc</code>: ' .
-                          __('Retrieves reviews by using a Universal Product Code (UPC) value','scrapeazon') .
+                          __('Retrieves reviews by using a Universal Product Code (UPC) value (not valid in CA locale)','scrapeazon') .
+                          '</li><li><code>sku</code>: ' .
+                          __('Retrieves reviews by using a stock keeping unit (SKU) value','scrapeazon') .
                           '</li><li><code>ean</code>: ' .
                           __('Retrieves reviews by using a European Article Number (EAN) value','scrapeazon') .
                           '</li></ul></p><p>' .
@@ -735,10 +788,12 @@ class szWidget extends WP_Widget {
                            'upc'        => ($instance['itype']=='upc' ) ? $instance['asin'] : '',
                            'isbn'       => ($instance['itype']=='isbn') ? $instance['asin'] : '',
                            'ean'        => ($instance['itype']=='ean' ) ? $instance['asin'] : '',
+                           'sku'        => ($instance['itype']=='sku' ) ? $instance['asin'] : '',
                            'border'     => ((in_array($instance['border'],$szBArray)) && isset ($instance[ 'border' ]) ) ? $instance['border'] : 'false',
                            'width'      => (($instance['width']!=0) && isset ($instance[ 'width' ]) ) ? absint($instance['width']) : '',
                            'height'     => (($instance['height']!=0) && isset ($instance[ 'height' ]) ) ? absint($instance['height']) : '',
                            'country'    => '--',
+                           'truncate'   => ($instance['truncate']!='1000' ) ? $instance['truncate'] : '',
                            'url'        => 'false',
                            'noblanks'   => 'false',
                            'iswidget'   => 'true'
@@ -800,6 +855,14 @@ class szWidget extends WP_Widget {
 		{
 		    $border = '';
 		}
+		if ( isset( $instance[ 'truncate' ] ) ) 
+		{
+		    $truncate = $instance[ 'truncate' ];
+		}
+		else
+		{
+		    $truncate = '1000';
+		}
 		?>
 		<p>
 		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:','scrapeazon'); ?></label> 
@@ -807,12 +870,15 @@ class szWidget extends WP_Widget {
  		<label for="<?php echo $this->get_field_id( 'itype' ); ?>"><?php _e('ID Type:','scrapeazon'); ?></label>
         <select class="widefat" id="<?php echo $this->get_field_id( 'itype' ); ?>" name="<?php echo $this->get_field_name( 'itype' ); ?>">
         <option value="asin" <?php echo (esc_attr($itype)=='asin') ? 'selected' : ''; ?>>ASIN</option>
-        <option value="isbn" <?php echo (esc_attr($itype)=='isbn') ? 'selected' : ''; ?>>ISBN</option>
-        <option value="upc" <?php echo (esc_attr($itype)=='upc') ? 'selected' : ''; ?>>UPC</option>
         <option value="ean" <?php echo (esc_attr($itype)=='ean') ? 'selected' : ''; ?>>EAN</option>
+        <option value="isbn" <?php echo (esc_attr($itype)=='isbn') ? 'selected' : ''; ?>>ISBN</option>
+        <option value="sku" <?php echo (esc_attr($itype)=='sku') ? 'selected' : ''; ?>>SKU</option>
+        <option value="upc" <?php echo (esc_attr($itype)=='upc') ? 'selected' : ''; ?>>UPC (not valid in CA locale)</option>
         </select>
  		<label for="<?php echo $this->get_field_id( 'asin' ); ?>"><?php _e('ID:','scrapeazon'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id( 'asin' ); ?>" name="<?php echo $this->get_field_name( 'asin' ); ?>" type="text" value="<?php echo esc_attr( $asin ); ?>">
+ 		<label for="<?php echo $this->get_field_id( 'truncate' ); ?>"><?php _e('Truncate Reviews At:','scrapeazon'); ?></label>
+        <input class="widefat" id="<?php echo $this->get_field_id( 'truncate' ); ?>" name="<?php echo $this->get_field_name( 'truncate' ); ?>" type="text" value="<?php echo esc_attr( $truncate ); ?>">
  		<label for="<?php echo $this->get_field_id( 'width' ); ?>"><?php _e('Width (in pixels):','scrapeazon'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id( 'width' ); ?>" name="<?php echo $this->get_field_name( 'width' ); ?>" type="text" value="<?php echo esc_attr( $width ); ?>">
  		<label for="<?php echo $this->get_field_id( 'height' ); ?>"><?php _e('Height (in pixels):','scrapeazon' ); ?></label>
@@ -826,12 +892,13 @@ class szWidget extends WP_Widget {
     public function update($new_instance, $old_instance)
     {
 		$instance = array();
-		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
-		$instance['itype'] = ( ! empty( $new_instance['itype'] ) ) ? strip_tags( $new_instance['itype'] ) : '';
-		$instance['asin']  = ( ! empty( $new_instance['asin'] ) ) ? strip_tags( $new_instance['asin'] ) : '';
-		$instance['width']  = ( ! empty( $new_instance['width'] ) ) ? strip_tags( $new_instance['width'] ) : '';
-		$instance['height']  = ( ! empty( $new_instance['height'] ) ) ? strip_tags( $new_instance['height'] ) : '';
-		$instance['border']  = ( ! empty( $new_instance['border'] ) ) ? strip_tags( $new_instance['border'] ) : '';
+		$instance['title']    = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+		$instance['itype']    = ( ! empty( $new_instance['itype'] ) ) ? strip_tags( $new_instance['itype'] ) : '';
+		$instance['asin']     = ( ! empty( $new_instance['asin'] ) ) ? strip_tags( $new_instance['asin'] ) : '';
+		$instance['truncate'] = ( ! empty( $new_instance['truncate'] ) ) ? strip_tags( $new_instance['truncate'] ) : '';
+		$instance['width']    = ( ! empty( $new_instance['width'] ) ) ? strip_tags( $new_instance['width'] ) : '';
+		$instance['height']   = ( ! empty( $new_instance['height'] ) ) ? strip_tags( $new_instance['height'] ) : '';
+		$instance['border']   = ( ! empty( $new_instance['border'] ) ) ? strip_tags( $new_instance['border'] ) : '';
 		return $instance;
     }
     
@@ -911,28 +978,32 @@ class szShortcode
          return "?{$newSZQuery}&Signature={$szSignature}";
     }
     
-    public function szGetIDType($szASIN,$szUPC,$szISBN,$szEAN)
+    public function szGetIDType($szASIN,$szUPC,$szISBN,$szEAN,$szSKU)
     {
         $szItemType = $szASIN . '&IdType=ASIN';
         
         if(! empty($szEAN))  { $szItemType = sanitize_text_field($szEAN) . '&IdType=EAN&SearchIndex=All'; }
         if(! empty($szUPC))  { $szItemType = sanitize_text_field($szUPC) . '&IdType=UPC&SearchIndex=All'; }
         if(! empty($szISBN)) { $szItemType = sanitize_text_field($szISBN) . '&IdType=ISBN&SearchIndex=All'; }
+        if(! empty($szSKU))  { $szItemType = sanitize_text_field($szSKU) . '&IdType=SKU&SearchIndex=All'; }
         
         return $szItemType;
     }
 
-    public function szAmazonURL($szASIN,$szUPC,$szISBN,$szEAN,$szCountry)
+    public function szAmazonURL($szASIN,$szUPC,$szISBN,$szEAN,$szSKU,$szCountry,$szTruncate,$szSummary)
     {
         $szSets   = new szWPOptions();
         $szSecret = $szSets->getSecretKey();
         
         $szSSLR   = $this->szIsSSL();
         
-        $szItemID = $this->szGetIDType($szASIN,$szUPC,$szISBN,$szEAN);
+        $szItemID = $this->szGetIDType($szASIN,$szUPC,$szISBN,$szEAN,$szSKU);
         
         $szUCCountry = ($szCountry!='--') ? strtoupper($szCountry) : strtoupper($szSets->getCountryID());
         $szDomain = (in_array($szUCCountry,$szSets->szCountries)) ? $this->szGetDomain($szUCCountry) : '.com';
+        
+        $szTruncate = ($szTruncate=='1000') ? absint($szSets->getTruncate()) : absint($szTruncate);
+        $szSummary  = (strtoupper($szSummary)!='FALSE') ? 'true' : 'false';
         
         $szHost = 'webservices.amazon' . $szDomain;
         
@@ -943,7 +1014,8 @@ class szShortcode
                   '&AWSAccessKeyId=' . 
                   $szSets->getAccessKey() .
                   '&Condition=All' .
-                  '&IncludeReviewsSummary=True' .
+                  '&IncludeReviewsSummary=' . $szSummary . 
+                  '&TruncateReviewsAt=' . $szTruncate .
                   '&ItemId=' . 
                   $szItemID . 
                   '&MerchantId=All' .
@@ -1084,6 +1156,18 @@ class szShortcode
              ' });' .
              '</script>';
     }
+    
+    public function szQuicktag()
+    {
+        if(wp_script_is('quicktags'))
+        {
+        ?>
+            <script type="text/javascript">
+            QTags.addButton('eg_scrapeazon','sAZ','[scrapeazon asin="" width="" height="" truncate="1000" summary="true" border="false"]','','scrapeazon','ScrapeAZon Shortcode');
+            </script>
+        <?php
+        }
+    }
 
     public function szParseShortcode($szAtts)
     {
@@ -1103,13 +1187,16 @@ class szShortcode
                      'upc'        => '',
                      'isbn'       => '',
                      'ean'        => '',
+                     'sku'        => '',
                      'border'     => 'false',
                      'width'      => '',
                      'height'     => '',
                      'country'    => '--',
                      'url'        => 'false',
                      'noblanks'   => 'false',
-                     'iswidget'   => 'false'
+                     'iswidget'   => 'false',
+                     'truncate'   => '1000',
+                     'summary'    => 'true'
 	               ), $szAtts);
 	           
 	        $szTransientID = $this->szTransientID($szSCAtts);
@@ -1117,7 +1204,7 @@ class szShortcode
 	               
             if ((false === ($szOutput = get_transient($szTransientID)))||($szTransientID=='szT-testpanel'))
             {
-                $szURL        = $this->szAmazonURL($szSCAtts['asin'],$szSCAtts['upc'],$szSCAtts['isbn'],$szSCAtts['ean'],$szSCAtts['country']);
+                $szURL        = $this->szAmazonURL($szSCAtts['asin'],$szSCAtts['upc'],$szSCAtts['isbn'],$szSCAtts['ean'],$szSCAtts['sku'],$szSCAtts['country'],$szSCAtts['truncate'],$szSCAtts['summary']);
                 $szXML        = $this->szCallAmazonAPI($szURL);
                 $szResults    = simplexml_load_string($szXML);
                 $szHasReviews = $szResults->Items->Item->CustomerReviews->HasReviews;

@@ -65,6 +65,7 @@ Yes, as of ScrapeAZon 2.0.1, you can replace the asin parameter in a shortcode w
 * <code>isbn</code>
 * <code>upc</code>
 * <code>ean</code>
+* <code>sku</code>
 
 The isbn parameter enables you to retrieve reviews for a book or an ebook by using an International Standard Book Number (ISBN). For example, you could use an ISBN retrieve reviews for Stephen King's 11/22/63 by using the following shortcode:
 
@@ -73,6 +74,8 @@ The isbn parameter enables you to retrieve reviews for a book or an ebook by usi
 The upc parameter enables you to retrieve reviews for a product based on that product's Universal Product Code (UPC).
 
 The ean parameter enables you to retrieve reviews for a product based on that product's European Article Number (EAN).
+
+The sku parameter enables you to retrieve reviews for a product based that product’s stock keeping unit (SKU).
 
 = Why do I need to sign up for an Amazon Affiliate account? =
 
@@ -85,6 +88,18 @@ Amazon's API requires an AWS Access Key ID and an AWS Secret Key in order to cor
 = Can I use a user-specific (IAM) access key id and secret key with this plugin? =
 
 No. As of this writing, Amazon's Product Advertising API does not support the use of IAM credentials. Therefore, you must use your root Access Key ID and Secret Key in order to successfully obtain product reviews. If you have already created root credentials and are no longer able to access your Secret Key, you might need to generate a new root key in the Amazon AWS Security Console.
+
+= Why is there a 0 at the end of my reviews? =
+
+For an unknown reason, the Amazon Product Advertising API returns a 0 at the end of review text. If you have configured review truncation, you won’t see the 0 value at the end of truncated reviews. However, any review that is displayed in its entirety currently also displays a 0 at the end. This is an issue with the API. Therefore, the plugin cannot fix this issue beyond allowing you to truncate reviews.
+
+= How do I truncate reviews to a specific character length? =
+
+If you want all ScrapeAZon-retrieved reviews throughout your site to be truncated at a specific character length, you can specify that length on the Settings > ScrapeAZon page. You can override this global setting at the shortcode level by specifying a positive integer value using the `truncate` parameter. A value of 0 either globally or on the shortcode level causes the API to return the full text of every review.
+
+= Can I disable the reviews summary so that readers do not see how many ratings each level has? =
+
+Yes. Although the reviews summary is on by default, you can disable it by specifying `summary="false"` in the shortcode.
 
 = Can I retrieve reviews from sites other than Amazon by using this plugin? =
 
@@ -188,6 +203,9 @@ Yes. By default, if the Amazon API returns no reviews for your product, ScrapeAZ
 
 == Upgrade Notice ==
 
+= 2.2.2 =
+Adds a shortcode button to the text editor, the ability to retrieve reviews by SKU, the ability to disable the reviews summary, and the ability to truncate reviews to a custom length.
+
 = 2.2.1 =
 Fixes a WP_DEBUG notice that could be displayed on WordPress content types that are not pages or posts.
 
@@ -267,6 +285,14 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
+
+= 2.2.2 =
+* Added the sAZ shortcode button to the default WordPress text editor
+* Added ability to retrieve reviews by SKU numbers
+* Added ability to truncate reviews to a given number of characters globally or via shortcode
+* Added ability to disable the display of the reviews summary that by default appear at the top of the reviews
+* Updated readme
+* Updated POT file
 
 = 2.2.1 =
 * Fixed a WP_DEBUG notice that could be displayed on WordPress content types that are not pages or posts
