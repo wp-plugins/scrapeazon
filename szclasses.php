@@ -1163,7 +1163,7 @@ class szShortcode
         {
         ?>
             <script type="text/javascript">
-            QTags.addButton('eg_scrapeazon','sAZ','[scrapeazon asin="" width="" height="" truncate="1000" summary="true" border="false"]','','scrapeazon','ScrapeAZon Shortcode');
+            QTags.addButton('eg_scrapeazon','SAz','[scrapeazon asin="" width="" height="" truncate="1000" summary="true" border="false"]','','scrapeazon','ScrapeAZon Shortcode');
             </script>
         <?php
         }
