@@ -287,7 +287,7 @@ This is the first version of the plugin.
 == Changelog ==
 
 = 2.2.2 =
-* Added the sAZ shortcode button to the default WordPress text editor
+* Added the SAz shortcode button to the default WordPress text editor
 * Added ability to retrieve reviews by SKU numbers
 * Added ability to truncate reviews to a given number of characters globally or via shortcode
 * Added ability to disable the display of the reviews summary that by default appear at the top of the reviews
