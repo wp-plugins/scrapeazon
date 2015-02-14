@@ -9,7 +9,7 @@ Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com/donate
 Requires at least: 3.6
 Tested up to:      4.1
-Stable tag:        2.2.1
+Stable tag:        2.2.2
 License:           GPL3
 
 Display Amazon.com customer reviews for products you specify in WordPress pages or posts, or as a widget.
@@ -287,7 +287,7 @@ This is the first version of the plugin.
 == Changelog ==
 
 = 2.2.2 =
-* Added the sAZ shortcode button to the default WordPress text editor
+* Added the SAz shortcode button to the default WordPress text editor
 * Added ability to retrieve reviews by SKU numbers
 * Added ability to truncate reviews to a given number of characters globally or via shortcode
 * Added ability to disable the display of the reviews summary that by default appear at the top of the reviews
