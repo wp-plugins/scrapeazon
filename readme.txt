@@ -8,7 +8,7 @@ Author URI:        http://www.timetides.com
 Author:            James R. Hanback, Jr.
 Donate link: 	   http://www.timetides.com/donate
 Requires at least: 3.6
-Tested up to:      4.2
+Tested up to:      4.2.2
 Stable tag:        2.2.2
 License:           GPL3
 
@@ -167,6 +167,8 @@ To style the iframe by using the shortcode, add width, height, and border as par
 
 <code>[scrapeazon asin="<your asin>" width="540" height="540" border="false"]</code>
 
+Append a percent (%) symbol to the width and height values if you are specifying your those values in percentages rather than pixels. You can optionally append ‘px’ instead of the percent symbol to use pixels. If you specify digits only, ScrapeAZon will default to pixels.
+
 To style the iframe by using the built-in responsive style sheet (if your site has a responsive design/theme), select the "Use Responsive Style" checkbox on the ScrapeAZon Settings page.
 
 = I'm using the responsive stylesheet. Why does the content in the iframe scroll horizontally on very small screens? =
@@ -202,6 +204,9 @@ Yes. By default, if the Amazon API returns no reviews for your product, ScrapeAZ
 <code>[scrapeazon isbn="9781451627299" noblanks="true"]</code> 
 
 == Upgrade Notice ==
+
+= 2.2.3 =
+Adds support for width and height percentages and hardens URL sanitization.
 
 = 2.2.2 =
 Adds a shortcode button to the text editor, the ability to retrieve reviews by SKU, the ability to disable the reviews summary, and the ability to truncate reviews to a custom length.
@@ -285,6 +290,14 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
+
+= 2.2.3 =
+* Added support for using width and height percentages in place of pixels.
+* Added backward compatibility for versions of WordPress earlier than 3.3 (plugin still requires at least WordPress 3.6 if responsive mode is used).
+* Added better error trapping for Amazon connectivity issues.
+* Hardened security by improving URL sanitization.
+* Updated readme.
+* Updated POT file.
 
 = 2.2.2 =
 * Added the SAz shortcode button to the default WordPress text editor

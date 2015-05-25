@@ -96,7 +96,7 @@ class szWPOptions
         if($this->szGetPageType())
         {
             $szStylesheet = plugins_url('szstyles.css',__FILE__);
-            wp_register_style('scrape-styles',$szStylesheet);
+            wp_register_style('scrape-styles',esc_url($szStylesheet));
             wp_enqueue_style('scrape-styles');
         }
         return true;
@@ -104,8 +104,10 @@ class szWPOptions
 
     public function szOptionsLink($szLink) 
     {
-        $szSettingsLink  = '<a href="' . admin_url() . 'admin.php?page=scrapeaz-options">' . __('Settings','scrapeazon') . '</a> | ';
-        $szSettingsLink .= '<a href="' . admin_url() . 'admin.php?page=scrapeaz-tests">' . __('Test','scrapeazon') . '</a>';
+        $szOptionsLink   = admin_url() . 'admin.php?page=scrapeaz-options';
+        $szTestsLink     = admin_url() . 'admin.php?page=scrapeaz-tests';
+        $szSettingsLink  = '<a href="' . esc_url($szOptionsLink) . '">' . __('Settings','scrapeazon') . '</a> | ';
+        $szSettingsLink .= '<a href="' . esc_url($szTestsLink) . '">' . __('Test','scrapeazon') . '</a>';
         array_unshift($szLink,$szSettingsLink);
         return $szLink;
     }
@@ -283,14 +285,19 @@ class szWPOptions
        
     public function szAddAdminPage() 
     {
+        global $wp_version;
         $szOptionsPage = add_submenu_page('options-general.php','ScrapeAZon','ScrapeAZon','manage_options','scrapeaz-options',array(&$this, 'szGetOptionsScreen'));
         $szTestingPage = add_submenu_page('scrapeaz-options','Tests','Tests','manage_options','scrapeaz-tests',array(&$this, 'szGetOptionsScreen'));
         $szCachingPage = add_submenu_page('scrapeaz-perform','Performance','Performance','manage_options','scrapeaz-perform',array(&$this, 'szGetOptionsScreen'));
         $szUsingPage   = add_submenu_page('scrapeaz-options','Usage','Usage','manage_options','scrapeaz-usages',array(&$this, 'szGetOptionsScreen'));    
-        add_action('load-' . $szOptionsPage, array(&$this, 'szAddHelp'));
-        add_action('load-' . $szTestingPage, array(&$this, 'szAddHelp'));
-        add_action('load-' . $szCachingPage, array(&$this, 'szAddHelp'));
-        add_action('load-' . $szUsingPage, array(&$this, 'szAddHelp'));       
+
+        if($wp_version>=3.3) 
+        {
+            add_action('load-' . $szOptionsPage, array(&$this, 'szAddHelp'));
+            add_action('load-' . $szTestingPage, array(&$this, 'szAddHelp'));
+            add_action('load-' . $szCachingPage, array(&$this, 'szAddHelp'));
+            add_action('load-' . $szUsingPage, array(&$this, 'szAddHelp'));
+        }    
     }
  
     public function szGetOptionsScreen() 
@@ -314,13 +321,18 @@ class szWPOptions
         if( isset( $_GET[ 'tab' ] ) ) {
             $active_tab = isset( $_GET[ 'tab' ] ) ? sanitize_text_field($_GET[ 'tab' ]) : 'scrapeazon_retrieval_section';
         }
-        echo '<h2 class="nav-tab-wrapper"><a href="' . admin_url() .'admin.php?page=scrapeaz-options&tab=scrapeazon_retrieval_section" class="nav-tab ';
+        $szRetrieveLink = admin_url() . 'admin.php?page=scrapeaz-options&tab=scrapeazon_retrieval_section';
+        $szTestsLink    = admin_url() . 'admin.php?page=scrapeaz-tests&tab=scrapeazon_test_section';
+        $szPerformLink  = admin_url() . 'admin.php?page=scrapeaz-perform&tab=scrapeazon_perform_section';
+        $szUsageLink    = admin_url() . 'admin.php?page=scrapeaz-usages&tab=scrapeazon_usage_section';
+        
+        echo '<h2 class="nav-tab-wrapper"><a href="' . esc_url($szRetrieveLink) .'" class="nav-tab ';
         echo $active_tab == 'scrapeazon_retrieval_section' ? 'nav-tab-active' : '';
-        echo '">ScrapeAZon</a><a href="' . admin_url() .'admin.php?page=scrapeaz-tests&tab=scrapeazon_test_section" class="nav-tab ';
+        echo '">ScrapeAZon</a><a href="' . esc_url($szTestsLink) .'" class="nav-tab ';
         echo $active_tab == 'scrapeazon_test_section' ? 'nav-tab-active' : '';
-        echo '">Tests</a><a href="' . admin_url() .'admin.php?page=scrapeaz-perform&tab=scrapeazon_perform_section" class="nav-tab ';
+        echo '">Tests</a><a href="' . esc_url($szPerformLink) . '" class="nav-tab ';
         echo $active_tab == 'scrapeazon_perform_section' ? 'nav-tab-active' : '';
-        echo '">Performance</a><a href="' . admin_url() .'admin.php?page=scrapeaz-usages&tab=scrapeazon_usage_section" class="nav-tab ';
+        echo '">Performance</a><a href="' . esc_url($szUsageLink) . '" class="nav-tab ';
         echo $active_tab == 'scrapeazon_usage_section' ? 'nav-tab-active' : '';
         echo '">Usage</a></h2>';
         
@@ -656,9 +668,9 @@ class szWPOptions
                           '</li></ul></p><p>' .
                           __('You can also issue the ScrapeAZon shortcode with the following additional parameters','scrapeazon') .
                           ':<ul><li><code>width</code>: ' .
-                          __('Specifies the width of the reviews iframe, or of the containing element if the responsive option is enabled.','scrapeazon') .
+                          __('Specifies the width of the reviews iframe, or of the containing element if the responsive option is enabled. Append a percent (%) symbol to this value if you are specifying your width in percentages rather than pixels. Otherwise, specify digits only.','scrapeazon') .
                           '</li><li><code>height</code>: ' .
-                          __('Specifies the height of the reviews iframe, or of the containing element if the responsive option is enabled.','scrapeazon') .
+                          __('Specifies the height of the reviews iframe, or of the containing element if the responsive option is enabled. Append a percent (%) symbol to this value if you are specifying your height in percentages rather than pixels. Otherwise, specify digits only.','scrapeazon') .
                           '</li><li><code>border</code>: ' .
                           __('When set to ','scrapeazon') .
                           '<code>false</code>, ' .
@@ -790,8 +802,8 @@ class szWidget extends WP_Widget {
                            'ean'        => ($instance['itype']=='ean' ) ? $instance['asin'] : '',
                            'sku'        => ($instance['itype']=='sku' ) ? $instance['asin'] : '',
                            'border'     => ((in_array($instance['border'],$szBArray)) && isset ($instance[ 'border' ]) ) ? $instance['border'] : 'false',
-                           'width'      => (($instance['width']!=0) && isset ($instance[ 'width' ]) ) ? absint($instance['width']) : '',
-                           'height'     => (($instance['height']!=0) && isset ($instance[ 'height' ]) ) ? absint($instance['height']) : '',
+                           'width'      => (($instance['width']!=0) && isset ($instance[ 'width' ]) ) ? $instance['width'] : '',
+                           'height'     => (($instance['height']!=0) && isset ($instance[ 'height' ]) ) ? $instance['height'] : '',
                            'country'    => '--',
                            'truncate'   => ($instance['truncate']!='1000' ) ? $instance['truncate'] : '',
                            'url'        => 'false',
@@ -879,9 +891,9 @@ class szWidget extends WP_Widget {
         <input class="widefat" id="<?php echo $this->get_field_id( 'asin' ); ?>" name="<?php echo $this->get_field_name( 'asin' ); ?>" type="text" value="<?php echo esc_attr( $asin ); ?>">
  		<label for="<?php echo $this->get_field_id( 'truncate' ); ?>"><?php _e('Truncate Reviews At:','scrapeazon'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id( 'truncate' ); ?>" name="<?php echo $this->get_field_name( 'truncate' ); ?>" type="text" value="<?php echo esc_attr( $truncate ); ?>">
- 		<label for="<?php echo $this->get_field_id( 'width' ); ?>"><?php _e('Width (in pixels):','scrapeazon'); ?></label>
+ 		<label for="<?php echo $this->get_field_id( 'width' ); ?>"><?php _e('Width:','scrapeazon'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id( 'width' ); ?>" name="<?php echo $this->get_field_name( 'width' ); ?>" type="text" value="<?php echo esc_attr( $width ); ?>">
- 		<label for="<?php echo $this->get_field_id( 'height' ); ?>"><?php _e('Height (in pixels):','scrapeazon' ); ?></label>
+ 		<label for="<?php echo $this->get_field_id( 'height' ); ?>"><?php _e('Height:','scrapeazon' ); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id( 'height' ); ?>" name="<?php echo $this->get_field_name( 'height' ); ?>" type="text" value="<?php echo esc_attr( $height ); ?>">
  		<label for="<?php echo $this->get_field_id( 'border' ); ?>"><?php _e('Border (true/false):','scrapeazon' ); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id( 'border' ); ?>" name="<?php echo $this->get_field_name( 'border' ); ?>" type="text" value="<?php echo esc_attr( $border ); ?>">
@@ -964,28 +976,32 @@ class szShortcode
          http://randomdrake.com/2009/07/27/amazon-aws-api-rest-authentication-for-php-5/
          */
      
-         parse_str($szQuery,$pQuery);
+         $pQuery = $szQuery;
          ksort($pQuery);
          foreach ($pQuery as $parameter => $value) {
-             $parameter     = str_replace("%7E", "~", rawurlencode($parameter));
-             $value         = str_replace("%7E", "~", rawurlencode($value));
-             $query_array[] = $parameter . '=' . $value;
+             if($value!='None') 
+             {
+                 $parameter     = str_replace("%7E", "~", rawurlencode($parameter));
+                 $value         = str_replace("%7E", "~", rawurlencode($value));
+                 $query_array[] = $parameter . '=' . $value;
+             }
          }
          $newSZQuery = implode('&', $query_array);
          $szSigString = "GET\n{$szHost}\n{$szPath}\n{$newSZQuery}";
          $szSignature = urlencode(base64_encode(hash_hmac('sha256', $szSigString, $szSecret, true)));
+         $szQueryStr = "?{$newSZQuery}&Signature={$szSignature}";
          
-         return "?{$newSZQuery}&Signature={$szSignature}";
+         return $szQueryStr;
     }
     
     public function szGetIDType($szASIN,$szUPC,$szISBN,$szEAN,$szSKU)
-    {
-        $szItemType = $szASIN . '&IdType=ASIN';
+    {      
+        $szItemType = 'ASIN';
         
-        if(! empty($szEAN))  { $szItemType = sanitize_text_field($szEAN) . '&IdType=EAN&SearchIndex=All'; }
-        if(! empty($szUPC))  { $szItemType = sanitize_text_field($szUPC) . '&IdType=UPC&SearchIndex=All'; }
-        if(! empty($szISBN)) { $szItemType = sanitize_text_field($szISBN) . '&IdType=ISBN&SearchIndex=All'; }
-        if(! empty($szSKU))  { $szItemType = sanitize_text_field($szSKU) . '&IdType=SKU&SearchIndex=All'; }
+        if(! empty($szEAN))  { $szItemType = 'EAN'; }
+        if(! empty($szUPC))  { $szItemType = 'UPC'; }
+        if(! empty($szISBN)) { $szItemType = 'ISBN'; }
+        if(! empty($szSKU))  { $szItemType = 'SKU'; }
         
         return $szItemType;
     }
@@ -1008,28 +1024,34 @@ class szShortcode
         $szHost = 'webservices.amazon' . $szDomain;
         
         $szPath = '/onca/xml';
-        $szQuery= 'AssociateTag=' . 
-                  $szSets->getAssocID() .
-                  '&Availability=Available' .
-                  '&AWSAccessKeyId=' . 
-                  $szSets->getAccessKey() .
-                  '&Condition=All' .
-                  '&IncludeReviewsSummary=' . $szSummary . 
-                  '&TruncateReviewsAt=' . $szTruncate .
-                  '&ItemId=' . 
-                  $szItemID . 
-                  '&MerchantId=All' .
-                  '&Operation=ItemLookup' .   
-                  '&ResponseGroup=Reviews' .
-                  '&Service=AWSECommerceService' .
-                  '&Timestamp=' . 
-                  gmdate("Y-m-d\TH:i:s\Z") .
-                  '&Version=2013-08-01'; 
+        
+        $szItemNum = sanitize_text_field($szASIN);
+        $szItemNum = (! empty($szUPC)) ? sanitize_text_field($szUPC) : sanitize_text_field($szASIN);
+        $szItemNum = (! empty($szISBN)) ? sanitize_text_field($szISBN) : sanitize_text_field($szASIN);
+        $szItemNum = (! empty($szEAN)) ? sanitize_text_field($szEAN) : sanitize_text_field($szASIN);
+        $szItemNum = (! empty($szSKU)) ? sanitize_text_field($szSKU) : sanitize_text_field($szASIN);
+        
+        $szQuery = array(
+                       'AssociateTag'          => $szSets->getAssocID(),
+                       'Availability'          => 'Available',
+                       'AWSAccessKeyId'        => $szSets->getAccessKey(),
+                       'Condition'             => 'All',
+                       'IncludeReviewsSummary' => $szSummary,
+                       'TruncateReviewsAt'     => $szTruncate,
+                       'ItemId'                => $szItemNum,
+                       'IdType'                => $szItemID,
+                       'SearchIndex'           => (($szItemID != 'ASIN') ? 'All' : 'None'),
+                       'MerchantId'            => 'All',
+                       'Operation'             => 'ItemLookup',
+                       'ResponseGroup'         => 'Reviews',
+                       'Service'               => 'AWSECommerceService',
+                       'Timestamp'             => gmdate("Y-m-d\TH:i:s\Z"),
+                       'Version'               => '2013-08-01'
+                   );
 
          $szAWSURI = $szSSLR . $szHost . $szPath . $this->szGetSignature($szHost,$szPath,$szQuery,$szSecret);
          
          unset($szSets);
-
          return $szAWSURI;   
     }
 
@@ -1043,6 +1065,7 @@ class szShortcode
             usleep(500000*pow($szRetries,2));
             $szResponse  = wp_remote_get($szURL);
             $szSCCode    = wp_remote_retrieve_response_code($szResponse);
+            $szSCCodeMsg = wp_remote_retrieve_response_message($szResponse);
             $szRetries   = $szRetries + 1;
         }
         
@@ -1050,7 +1073,7 @@ class szShortcode
         {
            $szXML = wp_remote_retrieve_body($szResponse);
         } else {
-           $szXML = '';
+           $szXML = "<?xml version=\"1.0\" ?><ItemLookupResponse><Items><Request><Errors><Error><Code>{$szSCCode} {$szSCCodeMsg}</Code><Message>ScrapeAZon could not connect to Amazon or was otherwise unable to retrieve data from Amazon. Please check your Internet connectivity, your ScrapeAZon settings, and your shortcode configuration.</Message></Error></Errors></Request></Items></ItemLookupResponse>";
         }
         return $szXML;
     }
@@ -1058,7 +1081,7 @@ class szShortcode
     public function szRetrieveFrameURL($szResults)
     {
         $szIFrameURL='';
-        if($szResults->Items->Item->CustomerReviews->HasReviews) 
+        if(! empty($szResults->Items->Item->CustomerReviews->HasReviews)) 
         {
             $szIFrameURL = str_replace('http://',$this->szIsSSL(),$szResults->Items->Item->CustomerReviews->IFrameURL);
         }
@@ -1067,7 +1090,7 @@ class szShortcode
             if($szResults->Items->Request->Errors->Error->Message)
             { 
                 echo '<div class="scrape-error">';
-                echo $szResults->Items->Request->Errors->Error->Code . ': ' . $szResults->Items->Request->Errors->Error->Message;
+                echo '<h2>' . $szResults->Items->Request->Errors->Error->Code . '</h2><p>' . $szResults->Items->Request->Errors->Error->Message . '</p>';
                 echo '</div>';
             }
         }
@@ -1077,16 +1100,27 @@ class szShortcode
     public function szShowDisclaimer($szWidth,$szRespBool)
     {
         // Make sure disclaimer is the same width as the iframe/responsive container
-        $szDWidth = ($this->szMatchDigits($szWidth)) ? ' style="width:' . $szWidth . 'px;" ' : '';
+        $szDWidth = ($this->szMatchDigits($szWidth)) ? ' style="width:' . $szWidth . $this->szPctOrPixel($szWidth) . ';" ' : '';
         $szDisclaimer = '<div id="scrapezon-disclaimer" class="scrape-api"' . $szDWidth . '>' .
                         __('CERTAIN CONTENT THAT APPEARS ON THIS SITE COMES FROM AMAZON SERVICES LLC. THIS CONTENT IS PROVIDED \'AS IS\' AND IS SUBJECT TO CHANGE OR REMOVAL AT ANY TIME.','scrapeazon') .
                         '</div>';
         return $szDisclaimer;
     }
     
+    public function szPctOrPixel($szParam)
+    {
+       if (preg_match('/^\d*(?:\%|px)$/',$szParam)) 
+       {
+           $szMatches = '';
+       } else {
+           $szMatches = 'px';
+       }
+       return $szMatches;
+    }
+    
     public function szMatchDigits($szParam)
     {
-       $szMatches = ((preg_match('/^\d*$/',$szParam))&&(! is_null($szParam))&&(! empty($szParam))) ? true : false;
+       $szMatches = ((preg_match('/^\d*$/',$szParam) || preg_match('/^\d*(?:\%|px)$/',$szParam))&&(! is_null($szParam))&&(! empty($szParam))) ? true : false;
        return $szMatches;
     }
 
@@ -1105,8 +1139,8 @@ class szShortcode
                 if (($this->szMatchDigits($szWidth)) || ($this->szMatchDigits($szHeight)))
                 { 
                     $szOutput .= ' style="';
-                    $szOutput .= ($this->szMatchDigits($szWidth)) ? 'width:' . absint($szWidth) . 'px;' : '';
-                    $szOutput .= ($this->szMatchDigits($szHeight)) ? 'height:' . absint($szHeight) . 'px;' : '';
+                    $szOutput .= ($this->szMatchDigits($szWidth)) ? 'width:' . $szWidth . $this->szPctOrPixel($szWidth) . ';' : '';
+                    $szOutput .= ($this->szMatchDigits($szHeight)) ? 'height:' . $szHeight . $this->szPctOrPixel($szHeight) . ';' : '';
                     $szOutput .= '"';
                 }
                  $szOutput .= '>';
@@ -1114,11 +1148,11 @@ class szShortcode
         
             $szOutput .= '<iframe id="scrapeazon-iframe" class="scrapeazon-reviews" src="' . 
                          esc_url($szFrameURL) .
-                         '" ';
-            $szOutput .= (strtolower($szBorder)=='true') ? 'frameborder="1" ' : 'frameborder="0" ';
-            $szOutput .= ((!$szRespBool)&&($this->szMatchDigits($szWidth))) ? 'width="' . absint($szWidth) . '" ' : '';
-            $szOutput .= ((!$szRespBool)&&($this->szMatchDigits($szHeight))) ? 'height="' . absint($szHeight) . '" ' : '';
-            $szOutput .= '></iframe>';
+                         '" style="';
+            $szOutput .= (strtolower($szBorder)=='true') ? 'border:medium single rgb(0,0,0);' : 'border:none;';
+            $szOutput .= ((!$szRespBool)&&($this->szMatchDigits($szWidth))) ? 'width:' . $szWidth . $this->szPctOrPixel($szWidth) . ';' : '';
+            $szOutput .= ((!$szRespBool)&&($this->szMatchDigits($szHeight))) ? 'height:' . $szHeight . $this->szPctOrPixel($szHeight) . ';' : '';
+            $szOutput .= '"></iframe>';
             $szOutput .= ($szRespBool) ? '</div>' : '';
             $szOutput .= $this->szShowDisclaimer($szWidth,$szRespBool);
         
@@ -1207,20 +1241,20 @@ class szShortcode
                 $szURL        = $this->szAmazonURL($szSCAtts['asin'],$szSCAtts['upc'],$szSCAtts['isbn'],$szSCAtts['ean'],$szSCAtts['sku'],$szSCAtts['country'],$szSCAtts['truncate'],$szSCAtts['summary']);
                 $szXML        = $this->szCallAmazonAPI($szURL);
                 $szResults    = simplexml_load_string($szXML);
-                $szHasReviews = $szResults->Items->Item->CustomerReviews->HasReviews;
+                $szHasReviews = (! empty($szResults->Items->Item->CustomerReviews->HasReviews)) ? $szResults->Items->Item->CustomerReviews->HasReviews : false;
 
                 $szFrameURL   = $this->szRetrieveFrameURL($szResults);
                       
                 if(true === ($szSCAtts['url']==strtolower('true'))) 
                 {
-                    set_transient ($szTransientID, $this->szShowURL($szFrameURL), $szTransientExpire * HOUR_IN_SECONDS);
+                    set_transient ($szTransientID, $this->szShowURL($szFrameURL), $szTransientExpire * 3600);
                     $szOutput = get_transient($szTransientID);
                 } else {
                     if($szTransientID=='szT-testpanel')
                     {
                         $szOutput = $this->szShowIFrame($szSCAtts['noblanks'],$szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL,$szHasReviews);
                     } else {
-                        set_transient ($szTransientID, $this->szShowIFrame($szSCAtts['noblanks'],$szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL,$szHasReviews), $szTransientExpire * HOUR_IN_SECONDS );
+                        set_transient ($szTransientID, $this->szShowIFrame($szSCAtts['noblanks'],$szSCAtts['border'],$szSCAtts['width'],$szSCAtts['height'],$szFrameURL,$szHasReviews), $szTransientExpire * 3600 );
                         $szOutput = get_transient($szTransientID);
                     }
                 }
