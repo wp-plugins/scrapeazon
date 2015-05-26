@@ -202,8 +202,6 @@ Yes. By default, if the Amazon API returns no reviews for your product, ScrapeAZ
 <code>[scrapeazon isbn="9781451627299" noblanks="true"]</code> 
 
 == Upgrade Notice ==
-= 2.2.3 =
-Updates signature function to operate more in the WordPress way and hardens URL sanitization.
 
 = 2.2.2 =
 Adds a shortcode button to the text editor, the ability to retrieve reviews by SKU, the ability to disable the reviews summary, and the ability to truncate reviews to a custom length.
@@ -287,10 +285,6 @@ This is the first version of the plugin.
 3. The shortcode in a post
 
 == Changelog ==
-
-= 2.2.3 =
-* Updated signature function to operate more in the WordPress way.
-* Hardened URL sanitization.
 
 = 2.2.2 =
 * Added the SAz shortcode button to the default WordPress text editor
