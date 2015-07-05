@@ -41,6 +41,7 @@ delete_option('scrape-amz-assoc-id');
 delete_option('scrape-getmethod');
 delete_option('scrape-getcountry');
 delete_option('scrape-responsive');
+delete_option('scrape-disclaimer');
 
 // Remove ScrapeAZon hidden notices
 $szMeta_type  = 'user';

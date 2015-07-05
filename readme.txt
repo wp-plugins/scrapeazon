@@ -179,6 +179,8 @@ Because the iframe content comes from a different source than the iframe itself,
 
 If you know how to edit your theme's CSS, you probably can. However, doing so is not recommended unless you already manually display the disclaimer on your site. As of this writing, Amazon Services requires the disclaimer as part of its Product Advertising API terms.
 
+As of ScrapeAZon 2.2.4, the Settings page now allows you to globally modify the text in the disclaimer.
+
 = Can I at least style the disclaimer differently? =
 
 If you want to use a different font, font size, or otherwise style the disclaimer, add a class named scrape-api to your theme's CSS file and make the changes within that class. For example, if you'd like the disclaimer to be in 9-point Helvetica and 540 pixels wide, you could add the following class to your CSS:
@@ -205,7 +207,7 @@ Yes. By default, if the Amazon API returns no reviews for your product, ScrapeAZ
 
 == Upgrade Notice ==
 
-= 2.2.3 =
+= 2.2.4 =
 Adds support for width and height percentages and hardens URL sanitization.
 
 = 2.2.2 =
@@ -291,10 +293,11 @@ This is the first version of the plugin.
 
 == Changelog ==
 
-= 2.2.3 =
+= 2.2.4 =
 * Added support for using width and height percentages in place of pixels.
 * Added backward compatibility for versions of WordPress earlier than 3.3 (plugin still requires at least WordPress 3.6 if responsive mode is used).
 * Added better error trapping for Amazon connectivity issues.
+* Added ability to modify disclaimer text.
 * Hardened security by improving URL sanitization.
 * Updated readme.
 * Updated POT file.

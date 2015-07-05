@@ -39,6 +39,7 @@ class szWPOptions
     public $szClearCache     = 0;
     public $szOptionsPage    = 'scrapeaz-options';
     public $szDefer          = 0;
+    public $szDisclaimerText = 'CERTAIN CONTENT THAT APPEARS ON THIS SITE COMES FROM AMAZON SERVICES LLC. THIS CONTENT IS PROVIDED \'AS IS\' AND IS SUBJECT TO CHANGE OR REMOVAL AT ANY TIME.';
 
     public function szDonateLink($links,$file)
     {
@@ -226,6 +227,19 @@ class szWPOptions
         $this->szTruncate = get_option('scrape-truncate','1000');
         return $this->szTruncate;
     }
+    
+    public function getDisclaimerText()
+    {
+        $this->szDisclaimerText = get_option('scrape-disclaimer',$this->szDisclaimerText);
+        return sanitize_text_field($this->szDisclaimerText);
+    }
+    
+    public function setDisclaimerText($newval)
+    {
+        $this->szDisclaimerText = trim($newval);
+        return $this->szDisclaimerText;
+    }
+    
        
     public function szOptionsCallback()
     {
@@ -278,6 +292,7 @@ class szWPOptions
         register_setting('scrapeazon-options','scrape-getcountry',array(&$this, 'setCountryID'));
         register_setting('scrapeazon-options','scrape-responsive',array(&$this, 'setResponsive'));
         register_setting('scrapeazon-options','scrape-truncate',array(&$this, 'setTruncate'));
+        register_setting('scrapeazon-options','scrape-disclaimer',array(&$this,'setDisclaimerText'));
         register_setting('scrapeazon-perform','scrape-perform',array(&$this, 'setCacheExpire'));
         register_setting('scrapeazon-perform','scrape-clearcache',array(&$this, 'setClearCache'));
         register_setting('scrapeazon-perform','scrape-defer',array(&$this, 'setDeferLoad'));
@@ -424,6 +439,15 @@ class szWPOptions
         echo $szField;
     }
     
+    public function szDisclaimerField($args)
+    {
+        $szField  = '<textarea id="scrape-disclaimer" name="scrape-disclaimer" rows="5" cols="30">';
+        $szField .= $this->getDisclaimerText();
+        $szField .= '</textarea><br />';
+        $szField .= '<label for="scrape-disclaimer"> '  . sanitize_text_field($args[0]) . '</label>';
+        echo $szField;
+    }
+    
     public function szCountryField($args)
     {
 	    $szField = '<select id="scrape-getcountry" name="scrape-getcountry">';
@@ -536,6 +560,18 @@ class szWPOptions
                 __('Enter your Amazon Advertising Associate ID.','scrapeazon')
             )
         );
+        
+        add_settings_field(
+            'scrape-disclaimer',
+            __('Alternate Disclaimer','scrapeazon'),
+            array(&$this, 'szDisclaimerField'),
+            'scrapeaz-options',
+            'scrapeazon_retrieval_section',
+            array(
+                __('If you prefer to use your own disclaimer language, enter it here. Remember that Amazon requires text similar to this to appear somewhere on your site to maintain compliance with the Amazon Advertising API Terms of Service.','scrapeazon')
+            )
+        );
+        
         
         add_settings_field(
             'scrape-getcountry',
@@ -1097,12 +1133,12 @@ class szShortcode
         return $szIFrameURL;
     }
     
-    public function szShowDisclaimer($szWidth,$szRespBool)
+    public function szShowDisclaimer($szWidth,$szRespBool,$szDisclaimerText)
     {
         // Make sure disclaimer is the same width as the iframe/responsive container
         $szDWidth = ($this->szMatchDigits($szWidth)) ? ' style="width:' . $szWidth . $this->szPctOrPixel($szWidth) . ';" ' : '';
         $szDisclaimer = '<div id="scrapezon-disclaimer" class="scrape-api"' . $szDWidth . '>' .
-                        __('CERTAIN CONTENT THAT APPEARS ON THIS SITE COMES FROM AMAZON SERVICES LLC. THIS CONTENT IS PROVIDED \'AS IS\' AND IS SUBJECT TO CHANGE OR REMOVAL AT ANY TIME.','scrapeazon') .
+                        $szDisclaimerText .
                         '</div>';
         return $szDisclaimer;
     }
@@ -1131,8 +1167,9 @@ class szShortcode
         {
             $szOutput = '';
         } else {
-            $szSets      = new szWPOptions();
-            $szRespBool  = absint($szSets->getResponsive());
+            $szSets           = new szWPOptions();
+            $szRespBool       = absint($szSets->getResponsive());
+            $szDisclaimerText = $szSets->getDisclaimerText(); 
             if($szRespBool) 
             {
                 $szOutput .= '<div id="scrapeazon-wrapper" class="scrapeazon-responsive"';
@@ -1154,7 +1191,7 @@ class szShortcode
             $szOutput .= ((!$szRespBool)&&($this->szMatchDigits($szHeight))) ? 'height:' . $szHeight . $this->szPctOrPixel($szHeight) . ';' : '';
             $szOutput .= '"></iframe>';
             $szOutput .= ($szRespBool) ? '</div>' : '';
-            $szOutput .= $this->szShowDisclaimer($szWidth,$szRespBool);
+            $szOutput .= $this->szShowDisclaimer($szWidth,$szRespBool,$szDisclaimerText);
         
             unset($szSets);
         }
